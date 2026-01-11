@@ -1,38 +1,30 @@
-// server.js
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import Groq from "groq-sdk";
 import nodemailer from "nodemailer";
 import path from "path";
-import { fileURLToPath } from "url";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ================= FILEPATHS FOR ESM =================
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 // ================= MIDDLEWARE =================
 app.use(cors());
 app.use(express.json());
-
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static("public"));
 
 // ================= EMAIL SETUP =================
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    pass: process.env.EMAIL_PASS, // Use Google App Password
   },
 });
 
-// Verify SMTP connection before starting server
+// Verify SMTP connection
 transporter.verify((error, success) => {
   if (error) {
     console.error("SMTP ERROR ❌", error);
@@ -43,7 +35,7 @@ transporter.verify((error, success) => {
 
 // ================= AI SETUP =================
 const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY
+  apiKey: process.env.GROQ_API_KEY,
 });
 
 // ================= ROUTES =================
@@ -104,17 +96,17 @@ app.post("/chat", async (req, res) => {
 
     const reply = completion.choices[0].message.content;
     res.json({ reply });
-
   } catch (err) {
     console.error("Groq error:", err);
     res.status(500).json({ error: "AI response failed" });
   }
 });
 
-// ================= WILDCARD ROUTE =================
-// This must come **after all other routes**
-app.get("/:path(*)", (req, res) => {
-   res.sendFile(path.join(__dirname, "public", "index.html"));
+// ================= SERVE FRONTEND =================
+const __dirname = path.resolve();
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // ================= START SERVER =================
