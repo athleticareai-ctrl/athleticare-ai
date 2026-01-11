@@ -274,3 +274,56 @@ body {
   background: transparent;
   box-shadow: none;
 }
+/* ================= MEDIA QUERIES ================= */
+@media screen and (max-width: 768px) {
+  .app-layout {
+    flex-direction: column; /* stack sidebar and chat vertically */
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    order: 2; /* place sidebar below chat if needed */
+  }
+
+  .chat-container {
+    width: 100%;
+    order: 1; /* place chat above sidebar */
+  }
+
+  .sidebar button#newChatBtn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  #chatList li {
+    font-size: 0.9rem; /* smaller font for mobile */
+  }
+
+  .chat-messages {
+    max-height: 50vh; /* adjust chat height */
+  }
+
+  .chat-input {
+    flex-direction: column;
+  }
+
+  .chat-input input,
+  .chat-input button {
+    width: 100%;
+    margin: 0.25rem 0;
+  }
+
+  /* Nav bar adjustments */
+  .top-nav {
+    flex-direction: column;
+    height: auto;
+    padding: 0.5rem 1rem;
+  }
+
+  #nav-actions ul {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
