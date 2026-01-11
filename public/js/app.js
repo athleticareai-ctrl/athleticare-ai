@@ -179,3 +179,13 @@ renderChats();
 if (activeChatId) {
     openChat(activeChatId);
 }
+function addMessage(role, text) {
+    const div = document.createElement("div");
+    div.className = `message ${role}`;
+
+    // Render markdown safely
+    div.innerHTML = marked.parse(text);
+
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
