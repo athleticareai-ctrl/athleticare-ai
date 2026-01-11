@@ -1,8 +1,9 @@
 // ================= AUTH GUARD =================
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
+
 if (!currentUser) {
-    window.location.href = "login1.html";
+    window.location.href = "about.html"; // redirect to about page
 }
 
 // ================= STORAGE (PER USER) =================
