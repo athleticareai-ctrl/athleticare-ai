@@ -1,0 +1,180 @@
+/* =====================================================
+   GLOBAL VARIABLES
+   ===================================================== */
+:root {
+    --font-main: "Geologica", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+    --bg-main: #0a0f14;
+    --bg-card: #0f172a;
+    --bg-input: #020617;
+
+    --text-primary: #e5e7eb;
+    --text-secondary: #9ca3af;
+
+    --green-accent: #22c55e;
+    --green-glow: rgba(34, 197, 94, 0.35);
+
+    --border-color: #1e293b;
+}
+
+/* =====================================================
+   RESET
+   ===================================================== */
+* {
+    box-sizing: border-box;
+    font-family: var(--font-main);
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    /* Carbon fiber pattern */
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%) -10px 0,
+        linear-gradient(225deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%) -10px 0,
+        linear-gradient(315deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%),
+        linear-gradient(45deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%);
+    background-size: 20px 20px;
+    background-color: var(--bg-main);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--text-primary);
+}
+
+/* =====================================================
+   AUTH CONTAINER
+   ===================================================== */
+.auth-container {
+    width: 100%;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 2.75rem 2.5rem;
+
+    background: linear-gradient(180deg, #020617, #0f172a);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+
+    box-shadow:
+        0 0 0 1px rgba(34, 197, 94, 0.08),
+        0 20px 45px rgba(0, 0, 0, 0.75);
+}
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    color: var(--green-accent);
+}
+
+.auth-header p {
+    margin-top: 6px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* =====================================================
+   FORM
+   ===================================================== */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+input {
+    width: 100%;
+    padding: 14px 15px;
+    border-radius: 10px;
+
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 400;
+}
+
+input::placeholder {
+    color: var(--text-secondary);
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--green-accent);
+    box-shadow: 0 0 0 1px var(--green-glow);
+}
+
+/* =====================================================
+   BUTTON
+   ===================================================== */
+button {
+    margin-top: 10px;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    color: #020617;
+
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(34, 197, 94, 0.4);
+}
+
+/* =====================================================
+   FOOTER LINKS
+   ===================================================== */
+.auth-footer {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.auth-footer a {
+    color: var(--green-accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* =====================================================
+   ERROR MESSAGES
+   ===================================================== */
+/* Error / Success Messages */
+#error-message,
+#loginMessage {
+    margin-top: 1rem;
+    font-weight: bold;
+    min-height: 1.5rem;
+}
