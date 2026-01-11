@@ -3,9 +3,19 @@ import cors from "cors";
 import dotenv from "dotenv";
 import Groq from "groq-sdk";
 import nodemailer from "nodemailer";
+import path from "path";
 
 dotenv.config();
 
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// ================= MIDDLEWARE =================
+app.use(cors());
+app.use(express.json());
+app.use(express.static("public"));
+
+// ================= EMAIL SETUP =================
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -14,6 +24,23 @@ const transporter = nodemailer.createTransport({
     },
 });
 
+// Verify SMTP connection before starting server
+transporter.verify((error, success) => {
+    if (error) {
+        console.error("SMTP ERROR ❌", error);
+    } else {
+        console.log("SMTP READY ✅");
+    }
+});
+
+// ================= AI SETUP =================
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY
+});
+
+// ================= ROUTES =================
+
+// Send confirmation email
 app.post("/send-confirmation", async (req, res) => {
     const { email, firstname } = req.body;
 
@@ -27,14 +54,14 @@ app.post("/send-confirmation", async (req, res) => {
             to: email,
             subject: "Welcome to AthletiCare AI 🏥",
             html: `
-        <h2>Welcome, ${firstname}!</h2>
-        <p>Your AthletiCare AI account has been successfully created.</p>
-        <p>You can now safely access injury guidance anytime.</p>
-        <br/>
-        <p><strong>Reminder:</strong> AthletiCare AI does not diagnose or replace a medical professional.</p>
-        <br/>
-        <p>— AthletiCare AI Team</p>
-      `,
+                <h2>Welcome, ${firstname}!</h2>
+                <p>Your AthletiCare AI account has been successfully created.</p>
+                <p>You can now safely access injury guidance anytime.</p>
+                <br/>
+                <p><strong>Reminder:</strong> AthletiCare AI does not diagnose or replace a medical professional.</p>
+                <br/>
+                <p>— AthletiCare AI Team</p>
+            `,
         });
 
         res.json({ success: true });
@@ -44,22 +71,7 @@ app.post("/send-confirmation", async (req, res) => {
     }
 });
 
-const app = express();
-const PORT = 3000;
-
-app.use(cors());
-app.use(express.json());
-app.use(express.static("public"));
-
-const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY
-});
-
-/**
- * CHAT ENDPOINT
- * Receives:
- * { messages: [{ role: "user" | "assistant", content: string }] }
- */
+// AI chat endpoint
 app.post("/chat", async (req, res) => {
     try {
         const { messages } = req.body;
@@ -91,15 +103,17 @@ app.post("/chat", async (req, res) => {
     }
 });
 
+// ================= START SERVER =================
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
-transporter.verify((error, success) => {
-    if (error) {
-        console.error("SMTP ERROR:", error);
-    } else {
-        console.log("SMTP READY ✅");
-    }
+
+// Serve frontend files
+app.use(express.static("public"));
+
+// For any unmatched route, serve index.html
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve("public/index.html"));
 });
 
 
