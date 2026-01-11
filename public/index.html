@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="css/ai.css" />
     <link href="https://fonts.googleapis.com/css2?family=Geo&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="favicon.png" />
-
 </head>
 
 <body>
@@ -17,19 +16,20 @@
     <!-- ================= TOP NAV ================= -->
     <header class="top-nav">
         <div class="logo">AthletiCare<span>AI</span></div>
-
         <nav id="nav-actions">
             <ul>
                 <li><a href="login1.html">Logout</a></li>
             </ul>
         </nav>
+        <!-- Hamburger for mobile -->
+        <button id="sidebarToggle" class="hamburger">&#9776;</button>
     </header>
 
     <!-- ================= APP LAYOUT ================= -->
     <div class="app-layout">
 
         <!-- ================= SIDEBAR ================= -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
 
             <!-- New Chat -->
             <button id="newChatBtn" class="new-chat-btn">
@@ -60,8 +60,9 @@
         </main>
 
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <script src="js/app.js" defer></script>
 </body>
 
 </html>
+
