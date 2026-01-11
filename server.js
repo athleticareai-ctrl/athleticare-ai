@@ -113,8 +113,8 @@ app.post("/chat", async (req, res) => {
 
 // ================= WILDCARD ROUTE =================
 // This must come **after all other routes**
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+app.get("/:path(*)", (req, res) => {
+   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // ================= START SERVER =================
