@@ -190,3 +190,11 @@ function addMessage(role, text) {
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
+// SIDEBAR TOGGLE FOR MOBILE
+const sidebar = document.getElementById("sidebar");
+const sidebarToggle = document.getElementById("sidebarToggle");
+
+sidebarToggle.addEventListener("click", () => {
+    sidebar.classList.toggle("open");
+});
+
