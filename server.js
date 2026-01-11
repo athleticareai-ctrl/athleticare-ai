@@ -108,12 +108,16 @@ app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
 
-// Serve frontend files
-app.use(express.static("public"));
+import path from "path";
+import { fileURLToPath } from "url";
 
-// For any unmatched route, serve index.html
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(path.join(__dirname, "public")));
+
 app.get("*", (req, res) => {
-  res.sendFile(path.resolve("public/index.html"));
+    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 
