@@ -107,8 +107,7 @@ app.post("/chat", async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
-
-import path from "path";
+// ================= SERVE FRONTEND =================
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -119,7 +118,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
-
 
 
 
