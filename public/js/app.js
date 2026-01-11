@@ -190,11 +190,25 @@ function addMessage(role, text) {
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
-// SIDEBAR TOGGLE FOR MOBILE
 const sidebar = document.getElementById("sidebar");
 const sidebarToggle = document.getElementById("sidebarToggle");
+const chatContainer = document.getElementById("chatContainer");
 
+// Create overlay dynamically
+const overlay = document.createElement("div");
+overlay.classList.add("overlay");
+document.body.appendChild(overlay);
+
+// Open sidebar
 sidebarToggle.addEventListener("click", () => {
-    sidebar.classList.toggle("open");
+    sidebar.classList.add("open");
+    overlay.classList.add("active");
 });
+
+// Close sidebar when clicking overlay
+overlay.addEventListener("click", () => {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("active");
+});
+
 
