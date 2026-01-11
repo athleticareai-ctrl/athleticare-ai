@@ -15,32 +15,62 @@
     --gray: #f3f5f4;
 }
 
-/* NAVBAR */
-.navbar {
-    background: var(--dark);
-    color: var(--green);
+/* ================= TOP NAV ================= */
+.top-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 36px;
+    padding: 0.8rem 2rem;
+    background: #000;
+    color: var(--accent);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-.nav-logo {
-    font-size: 1.4rem;
-    font-weight: 600;
+.logo {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--accent);
 }
 
-.nav-links a {
-    color: var(--green);
+.logo span {
+    color: white;
+}
+
+#nav-actions {
+    position: relative;
+}
+
+#nav-actions ul {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+}
+
+#nav-actions li a {
     text-decoration: none;
-    margin-left: 24px;
-    font-weight: 500;
+    color: var(--accent);
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
 }
 
-.nav-cta {
-    border: 1px solid var(--green);
-    padding: 8px 16px;
+#nav-actions li a:hover {
+    background: #111;
     border-radius: 6px;
+}
+
+/* Nav toggle for mobile */
+.nav-toggle {
+    display: none;
+    font-size: 2rem;
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
 }
 
 /* HERO HEADER */
