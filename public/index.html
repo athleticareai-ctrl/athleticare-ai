@@ -15,14 +15,14 @@
 
     <!-- ================= TOP NAV ================= -->
     <header class="top-nav">
+        <!-- Hamburger for mobile -->
+        <button id="sidebarToggle" class="hamburger">&#9776;</button>
         <div class="logo">AthletiCare<span>AI</span></div>
         <nav id="nav-actions">
             <ul>
                 <li><a href="login1.html">Logout</a></li>
             </ul>
         </nav>
-        <!-- Hamburger for mobile -->
-        <button id="sidebarToggle" class="hamburger">&#9776;</button>
     </header>
 
     <!-- ================= APP LAYOUT ================= -->
@@ -44,7 +44,7 @@
         </aside>
 
         <!-- ================= MAIN CHAT ================= -->
-        <main class="chat-container">
+        <main class="chat-container" id="chatContainer">
 
             <div id="chatMessages" class="chat-messages">
                 <div class="system-message">
@@ -61,8 +61,12 @@
 
     </div>
 
+    <!-- Overlay for closing sidebar on mobile -->
+    <div id="overlay" class="overlay"></div>
+
     <script src="js/app.js" defer></script>
 </body>
 
 </html>
+
 
