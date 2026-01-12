@@ -332,15 +332,15 @@ body {
     .hamburger {
         display: block;
         position: absolute;
-        left: 1rem; /* Move to left side */
-        top: 50%;
-        transform: translateY(-50%);
+        top: 0.75rem;        /* top-left corner */
+        left: 1rem;
         font-size: 1.8rem;
         background: var(--bg-dark);
         color: var(--accent);
         border: none;
         cursor: pointer;
         z-index: 1100;
+        padding: 0.25rem 0.5rem;
     }
 
     .sidebar {
@@ -385,5 +385,3 @@ body {
         padding: 1rem;
     }
 }
-
-
