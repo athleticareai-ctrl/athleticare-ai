@@ -1,9 +1,8 @@
 // ================= AUTH GUARD =================
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-
 if (!currentUser) {
-    window.location.href = "about.html"; // redirect to about page
+    window.location.href = "about.html";
 }
 
 // ================= STORAGE (PER USER) =================
@@ -79,11 +78,17 @@ function openChat(id) {
     renderChats();
 }
 
-// ================= MESSAGE UI =================
+// ================= MESSAGE UI (SAFE) =================
 function addMessage(role, text) {
     const div = document.createElement("div");
     div.className = `message ${role}`;
-    div.textContent = text;
+
+    // ✅ Safe markdown rendering (never crashes)
+    if (window.marked) {
+        div.innerHTML = marked.parse(text);
+    } else {
+        div.textContent = text;
+    }
 
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -117,12 +122,10 @@ async function sendMessage() {
     const chat = chats.find(c => c.id === activeChatId);
     if (!chat) return;
 
-    // Set title on first user message
     if (chat.messages.length === 0) {
         chat.title = summarizeTitle(text);
     }
 
-    // Add user message
     chat.messages.push({ role: "user", text });
     addMessage("user", text);
     userInput.value = "";
@@ -148,20 +151,18 @@ async function sendMessage() {
             throw new Error("No AI reply");
         }
 
-        // Add AI reply
         chat.messages.push({ role: "bot", text: data.reply });
         addMessage("bot", data.reply);
 
         saveChats();
     } catch (err) {
-        console.error(err);
+        console.error("Chat error:", err);
         addMessage(
             "bot",
             "Sorry — I’m having trouble responding right now. Please try again."
         );
     }
 }
-
 
 // ================= EVENTS =================
 sendBtn.addEventListener("click", sendMessage);
@@ -174,41 +175,27 @@ userInput.addEventListener("keydown", e => {
 
 newChatBtn.addEventListener("click", createNewChat);
 
-// ================= INIT =================
-renderChats();
-
-if (activeChatId) {
-    openChat(activeChatId);
-}
-function addMessage(role, text) {
-    const div = document.createElement("div");
-    div.className = `message ${role}`;
-
-    // Render markdown safely
-    div.innerHTML = marked.parse(text);
-
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+// ================= MOBILE SIDEBAR =================
 const sidebar = document.getElementById("sidebar");
 const sidebarToggle = document.getElementById("sidebarToggle");
-const chatContainer = document.getElementById("chatContainer");
 
-// Create overlay dynamically
 const overlay = document.createElement("div");
 overlay.classList.add("overlay");
 document.body.appendChild(overlay);
 
-// Open sidebar
 sidebarToggle.addEventListener("click", () => {
     sidebar.classList.add("open");
     overlay.classList.add("active");
 });
 
-// Close sidebar when clicking overlay
 overlay.addEventListener("click", () => {
     sidebar.classList.remove("open");
     overlay.classList.remove("active");
 });
+
+// ================= INIT =================
+renderChats();
+if (activeChatId) openChat(activeChatId);
+
 
 
