@@ -17,7 +17,8 @@
     "groq-sdk": "^0.37.0",
     "nodemailer": "^7.0.12",
     "node-fetch": "^2.7.0",
-    "openai": "^6.15.0"
+    "openai": "^6.15.0",
+    "resend": "^3.2.0"
   },
   "description": ""
 }
