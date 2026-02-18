@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import Groq from "groq-sdk";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import path from "path";
 
 dotenv.config();
@@ -14,27 +14,13 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
+
 app.get("/", (req, res) => {
-    res.redirect("/about.html");
+  res.redirect("/about.html");
 });
 
-// ================= EMAIL SETUP =================
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Use Google App Password
-  },
-});
-
-// Verify SMTP connection
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("SMTP ERROR ❌", error);
-  } else {
-    console.log("SMTP READY ✅");
-  }
-});
+// ================= EMAIL SETUP (RESEND) =================
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ================= AI SETUP =================
 const groq = new Groq({
@@ -52,8 +38,8 @@ app.post("/send-confirmation", async (req, res) => {
   }
 
   try {
-    await transporter.sendMail({
-      from: `"AthletiCare AI" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: "onboarding@resend.dev", // temporary verified sender
       to: email,
       subject: "Welcome to AthletiCare AI 🏥",
       html: `
@@ -67,14 +53,20 @@ app.post("/send-confirmation", async (req, res) => {
       `,
     });
 
+    console.log("Confirmation email sent successfully ✅");
     res.json({ success: true });
   } catch (err) {
-    console.error("Email error:", err);
-    res.status(500).json({ error: "Email failed" });
+    console.error("Resend Email Error ❌:", err);
+
+    // IMPORTANT: Do not block signup if email fails
+    res.status(200).json({
+      success: true,
+      warning: "Account created, but email failed.",
+    });
   }
 });
 
-// AI chat endpoint
+// ================= AI CHAT ENDPOINT =================
 app.post("/chat", async (req, res) => {
   try {
     const { messages } = req.body;
@@ -100,7 +92,7 @@ app.post("/chat", async (req, res) => {
     const reply = completion.choices[0].message.content;
     res.json({ reply });
   } catch (err) {
-    console.error("Groq error:", err);
+    console.error("Groq error ❌:", err);
     res.status(500).json({ error: "AI response failed" });
   }
 });
@@ -114,8 +106,9 @@ app.get("*", (req, res) => {
 
 // ================= START SERVER =================
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT} 🚀`);
 });
+
 
 
 
