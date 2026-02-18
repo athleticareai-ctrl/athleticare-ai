@@ -5,6 +5,7 @@ import Groq from "groq-sdk";
 import { Resend } from "resend";
 import path from "path";
 
+
 dotenv.config();
 
 const app = express();
