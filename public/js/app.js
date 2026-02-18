@@ -87,7 +87,8 @@ function addMessage(role, text) {
     if (window.marked) {
         div.innerHTML = marked.parse(text);
     } else {
-        div.textContent = text;
+        const cleanText = text.replace(/\*\*/g, "").replace(/\*/g, "");
+        div.textContent = cleanText;
     }
 
     chatMessages.appendChild(div);
