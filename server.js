@@ -4,30 +4,25 @@ import dotenv from "dotenv";
 import Groq from "groq-sdk";
 import { Resend } from "resend";
 import path from "path";
-
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ================= ESM __dirname FIX =================
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // ================= MIDDLEWARE =================
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public"));
 
-// ================= SERVE FRONTEND =================
-const __dirname = path.resolve();
-
-// Serve actual files normally (no redirects)
+// ================= STATIC FILES =================
 app.use(express.static(path.join(__dirname, "public")));
 
-// Only fallback for UNKNOWN routes (SPA safety)
-app.get("/:path", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", req.params.path));
-});
-
-// ================= EMAIL SETUP (RESEND) =================
+// ================= EMAIL SETUP =================
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ================= AI SETUP =================
@@ -47,7 +42,7 @@ app.post("/send-confirmation", async (req, res) => {
 
   try {
     await resend.emails.send({
-      from: "onboarding@resend.dev", // temporary verified sender
+      from: "AthletiCare AI <onboarding@resend.dev>",
       to: email,
       subject: "Welcome to AthletiCare AI 🏥",
       html: `
@@ -61,12 +56,10 @@ app.post("/send-confirmation", async (req, res) => {
       `,
     });
 
-    console.log("Confirmation email sent successfully ✅");
+    console.log("Confirmation email sent ✅");
     res.json({ success: true });
   } catch (err) {
     console.error("Resend Email Error ❌:", err);
-
-    // IMPORTANT: Do not block signup if email fails
     res.status(200).json({
       success: true,
       warning: "Account created, but email failed.",
@@ -74,7 +67,7 @@ app.post("/send-confirmation", async (req, res) => {
   }
 });
 
-// ================= AI CHAT ENDPOINT =================
+// AI chat endpoint
 app.post("/chat", async (req, res) => {
   try {
     const { messages } = req.body;
@@ -105,11 +98,10 @@ app.post("/chat", async (req, res) => {
   }
 });
 
-// ================= SERVE FRONTEND =================
-const __dirname = path.resolve();
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+// ================= SAFE FALLBACK =================
+// Sends About page ONLY if route not found
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, "public", "about.html"));
 });
 
 // ================= START SERVER =================
