@@ -16,8 +16,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-app.get("/", (req, res) => {
-  res.redirect("/about.html");
+// ================= SERVE FRONTEND =================
+const __dirname = path.resolve();
+
+// Serve actual files normally (no redirects)
+app.use(express.static(path.join(__dirname, "public")));
+
+// Only fallback for UNKNOWN routes (SPA safety)
+app.get("/:path", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", req.params.path));
 });
 
 // ================= EMAIL SETUP (RESEND) =================
