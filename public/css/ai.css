@@ -194,13 +194,14 @@ body {
   border-radius: 16px 16px 16px 4px;
   padding: 1rem 1.25rem;
   max-width: 70%;
-  word-wrap: break-word;
   font-size: 1.125rem;
-  /* bigger text */
   line-height: 1.6;
-  /* spaced nicely */
-  white-space: pre-wrap;
-  /* preserves line breaks */
+
+  /* text wrapping fixes */
+  white-space: pre-wrap;       /* preserves line breaks */
+  word-wrap: break-word;       /* legacy support */
+  overflow-wrap: anywhere;     /* prevents long text overflow */
+  word-break: break-word;      /* ensures wrapping on long strings */
 }
 
 /* Optional: smooth scrolling */
