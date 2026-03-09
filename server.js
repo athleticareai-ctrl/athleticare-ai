@@ -87,7 +87,7 @@ app.post("/chat", async (req, res) => {
         ...messages
       ],
       temperature: 0.4,
-      max_tokens: 300
+      max_tokens: 100
     });
 
     const reply = completion.choices[0].message.content;
