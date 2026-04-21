@@ -18,82 +18,116 @@
 
 body {
   margin: 0;
-  font-family: 'Geo', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--bg-dark);
   color: var(--text-main);
   height: 100vh;
   display: flex;
   flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ================= TOP NAV ================= */
 .top-nav {
-  height: 75px;
-  background: linear-gradient(180deg, #0c0c0c, #080808);
-  border-bottom: 1px solid #1f1f1f;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 64px;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 210, 106, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 2rem;
+  padding: 16px 36px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.top-nav.scrolled {
+  padding: 12px 36px;
+  background: rgba(0, 0, 0, 0.95);
 }
 
 .logo {
-  font-size: 2.5rem;
-  font-weight: 900;
+  font-size: 1.4rem;
+  font-weight: 700;
   color: var(--accent);
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 20px rgba(0, 210, 106, 0.3);
 }
 
 .logo span {
-  color: white;
+  opacity: 0.8;
 }
 
 #nav-actions ul {
   list-style: none;
   display: flex;
-  gap: 1rem;
+  align-items: center;
+  gap: 8px;
   margin: 0;
   padding: 0;
 }
 
 #nav-actions a {
-  font-size: 1.5rem;
-  padding: 0.45rem 0.9rem;
-  border-radius: 8px;
-  text-decoration: none;
-  transition: all 0.2s ease;
   color: var(--accent);
+  text-decoration: none;
+  padding: 10px 18px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
-#nav-actions a[href*="signup"] {
-  color: var(--text-main);
-  font-size: 2.25rem;
+#nav-actions a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--accent) 0%, #16a34a 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
 }
 
-#nav-actions a[href*="signup"]:hover {
-  background: #1e1e1e;
+#nav-actions a:hover::before {
+  opacity: 0.1;
 }
 
-#nav-actions a[href*="login"] {
-  background: var(--accent);
-  color: #0b0b0b;
-  font-weight: 600;
-}
-
-#nav-actions a[href*="login"]:hover {
-  filter: brightness(1.1);
+#nav-actions a:hover {
+  transform: translateY(-2px);
 }
 
 #nav-actions .nav-user {
   color: var(--text-main);
-  font-size: 1.5rem;
-  padding: 0.45rem 0.9rem;
+  font-size: 0.95rem;
+  padding: 10px 18px;
 }
 
 /* ================= APP LAYOUT ================= */
 .app-layout {
   flex: 1;
   display: flex;
-  height: calc(100vh - 75px);
+  height: calc(100vh - 64px);
+  overflow: hidden;
+  margin-top: 64px;
+}
+
+/* ================= CHAT CONTAINER FIX ================= */
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  min-height: 0;
 }
 
 /* ================= SIDEBAR ================= */
@@ -157,13 +191,6 @@ body {
   font-weight: 600;
 }
 
-/* ================= CHAT AREA ================= */
-.chat-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-panel);
-}
 
 /* ================= CHAT MESSAGES ================= */
 .chat-messages {
@@ -184,12 +211,9 @@ body {
   padding: 1rem 1.25rem;
   max-width: 70%;
   word-wrap: break-word;
-  font-size: 1.125rem;
-  /* bigger text */
-  line-height: 1.6;
-  /* spaced nicely */
+  font-size: 1.05rem;
+  line-height: 1.7;
   white-space: pre-wrap;
-  /* preserves line breaks */
 }
 
 /* AI messages */
@@ -201,12 +225,9 @@ body {
   padding: 1rem 1.25rem;
   max-width: 70%;
   word-wrap: break-word;
-  font-size: 1.125rem;
-  /* bigger text */
-  line-height: 1.6;
-  /* spaced nicely */
+  font-size: 1.05rem;
+  line-height: 1.7;
   white-space: pre-wrap;
-  /* preserves line breaks */
 }
 
 /* Optional: smooth scrolling */
