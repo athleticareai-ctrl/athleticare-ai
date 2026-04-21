@@ -2,7 +2,7 @@
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
 if (!currentUser) {
-    window.location.href = "about.html";
+    window.location.href = "login1.html";
 }
 
 // ================= STORAGE (PER USER) =================
@@ -12,8 +12,11 @@ const CHAT_STORAGE_KEY = `chats_${currentUser.email}`;
 const navActions = document.getElementById("nav-actions");
 
 navActions.innerHTML = `
-  <span class="nav-user">Hi, ${currentUser.firstname}</span>
-  <a href="#" id="logoutBtn">Logout</a>
+  <ul>
+    <li><a href="schedule.html">Scheduling</a></li>
+    <li><span class="nav-user">Hi, ${currentUser.firstname}</span></li>
+    <li><a href="#" id="logoutBtn">Logout</a></li>
+  </ul>
 `;
 
 document.getElementById("logoutBtn").addEventListener("click", () => {
@@ -78,18 +81,11 @@ function openChat(id) {
     renderChats();
 }
 
-// ================= MESSAGE UI (SAFE) =================
+// ================= MESSAGE UI =================
 function addMessage(role, text) {
     const div = document.createElement("div");
     div.className = `message ${role}`;
-
-    // ✅ Safe markdown rendering (never crashes)
-    if (window.marked) {
-        div.innerHTML = marked.parse(text);
-    } else {
-        const cleanText = text.replace(/\*\*/g, "").replace(/\*/g, "");
-        div.textContent = cleanText;
-    }
+    div.textContent = text;
 
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -123,10 +119,12 @@ async function sendMessage() {
     const chat = chats.find(c => c.id === activeChatId);
     if (!chat) return;
 
+    // Set title on first user message
     if (chat.messages.length === 0) {
         chat.title = summarizeTitle(text);
     }
 
+    // Add user message
     chat.messages.push({ role: "user", text });
     addMessage("user", text);
     userInput.value = "";
@@ -152,18 +150,20 @@ async function sendMessage() {
             throw new Error("No AI reply");
         }
 
+        // Add AI reply
         chat.messages.push({ role: "bot", text: data.reply });
         addMessage("bot", data.reply);
 
         saveChats();
     } catch (err) {
-        console.error("Chat error:", err);
+        console.error(err);
         addMessage(
             "bot",
             "Sorry — I’m having trouble responding right now. Please try again."
         );
     }
 }
+
 
 // ================= EVENTS =================
 sendBtn.addEventListener("click", sendMessage);
@@ -176,27 +176,12 @@ userInput.addEventListener("keydown", e => {
 
 newChatBtn.addEventListener("click", createNewChat);
 
-// ================= MOBILE SIDEBAR =================
-const sidebar = document.getElementById("sidebar");
-const sidebarToggle = document.getElementById("sidebarToggle");
-
-const overlay = document.createElement("div");
-overlay.classList.add("overlay");
-document.body.appendChild(overlay);
-
-sidebarToggle.addEventListener("click", () => {
-    sidebar.classList.add("open");
-    overlay.classList.add("active");
-});
-
-overlay.addEventListener("click", () => {
-    sidebar.classList.remove("open");
-    overlay.classList.remove("active");
-});
-
 // ================= INIT =================
 renderChats();
-if (activeChatId) openChat(activeChatId);
+
+if (activeChatId) {
+    openChat(activeChatId);
+}
 
 
 
