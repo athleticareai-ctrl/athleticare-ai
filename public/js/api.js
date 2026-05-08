@@ -1,5 +1,5 @@
 // ================= API UTILITY =================
-const API_BASE = window.location.origin + "/api";
+const API_BASE = (window.location.origin + "/api").replace(/\/+$/, "");
 
 const api = {
     async request(endpoint, method = "GET", body = null) {
@@ -19,7 +19,8 @@ const api = {
             config.body = JSON.stringify(body);
         }
 
-        const response = await fetch(`${API_BASE}${endpoint}`, config);
+        const url = `${API_BASE}/${endpoint.replace(/^\/+/, "")}`;
+        const response = await fetch(url, config);
         
         if (response.status === 401) {
             // Token expired or invalid
