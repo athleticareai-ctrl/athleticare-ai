@@ -1,6 +1,17 @@
 console.log("Login.js loaded");
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Check for existing session and redirect
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    if (token && user) {
+        if (!user.onboardingComplete) {
+            window.location.href = "onboarding.html";
+        } else {
+            window.location.href = "index.html";
+        }
+        return;
+    }
 
     // ================================
     // SIGNUP FORM HANDLING
@@ -11,9 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const emailInput = document.getElementById("email-input");
         const passwordInput = document.getElementById("password-input");
         const confirmPasswordInput = document.getElementById("confirm-password-input");
+        const accessCodeInput = document.getElementById("access-code-input");
         const errorMessage = document.getElementById("error-message");
 
-        signupForm.addEventListener("submit", (e) => {
+        signupForm.addEventListener("submit", async (e) => {
             e.preventDefault();
 
             let errors = [];
@@ -30,46 +42,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // Load users from localStorage
-            let users = JSON.parse(localStorage.getItem("users")) || [];
+            try {
+                const response = await api.post("/auth/signup", {
+                    firstname: firstnameInput.value.trim(),
+                    email: emailInput.value.trim().toLowerCase(),
+                    password: passwordInput.value,
+                    accessCode: accessCodeInput && accessCodeInput.value ? accessCodeInput.value.trim().toUpperCase() : ""
+                });
 
-            // Check if email already exists
-            if (users.find(u => u.email.toLowerCase() === emailInput.value.trim().toLowerCase())) {
-                errorMessage.textContent = "Account already exists.";
+                // Save token and user for auto-login
+                localStorage.setItem("token", response.token);
+                localStorage.setItem("currentUser", JSON.stringify(response.user));
+
+                // Show success
+                errorMessage.textContent = "Account created! Redirecting to setup...";
+                errorMessage.style.color = "limegreen";
+
+                signupForm.reset();
+
+                // Redirect to onboarding
+                setTimeout(() => {
+                    window.location.href = "onboarding.html";
+                }, 1000);
+            } catch (err) {
+                errorMessage.textContent = err.message;
                 errorMessage.style.color = "red";
-                return;
             }
-
-            // Create new user
-            const newUser = {
-                firstname: firstnameInput.value.trim(),
-                email: emailInput.value.trim().toLowerCase(),
-                password: passwordInput.value
-            };
-            users.push(newUser);
-            localStorage.setItem("users", JSON.stringify(users));
-            localStorage.setItem("currentUser", JSON.stringify(newUser));
-            fetch("/send-confirmation", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: newUser.email,
-                    firstname: newUser.firstname,
-                }),
-            });
-
-            // Show success
-            errorMessage.textContent = "Account created successfully!";
-            errorMessage.style.color = "limegreen";
-
-            signupForm.reset();
-
-            // Optional: redirect after 1 second
-            setTimeout(() => {
-                window.location.href = "index.html";
-            }, 1000);
         });
     }
 
@@ -82,30 +80,42 @@ document.addEventListener("DOMContentLoaded", () => {
         const loginPassword = document.getElementById("loginPassword");
         const loginMessage = document.getElementById("loginMessage");
 
-        loginForm.addEventListener("submit", (e) => {
+        // Load remembered email
+        const rememberedEmail = localStorage.getItem("rememberedEmail");
+        if (rememberedEmail) {
+            loginEmail.value = rememberedEmail;
+        }
+
+        loginForm.addEventListener("submit", async (e) => {
             e.preventDefault();
 
             const email = loginEmail.value.trim().toLowerCase();
             const password = loginPassword.value;
 
-            let users = JSON.parse(localStorage.getItem("users")) || [];
-            const user = users.find(u => u.email === email && u.password === password);
+            try {
+                const response = await api.post("/auth/login", { email, password });
+                
+                // Save token and user
+                localStorage.setItem("token", response.token);
+                localStorage.setItem("currentUser", JSON.stringify(response.user));
 
-            if (!user) {
+                // Handle Remember Me (assuming there's a checkbox, otherwise we just remember the last successful email)
+                localStorage.setItem("rememberedEmail", email);
+
+                loginMessage.textContent = `Welcome, ${response.user.firstname}! Redirecting...`;
+                loginMessage.style.color = "limegreen";
+
+                setTimeout(() => {
+                    if (!response.user.onboardingComplete) {
+                        window.location.href = "onboarding.html";
+                    } else {
+                        window.location.href = "index.html";
+                    }
+                }, 1000);
+            } catch (err) {
                 loginMessage.textContent = "Invalid email or password.";
                 loginMessage.style.color = "red";
-                return;
             }
-
-            // Save current user
-            localStorage.setItem("currentUser", JSON.stringify(user));
-
-            loginMessage.textContent = `Welcome, ${user.firstname}! Redirecting...`;
-            loginMessage.style.color = "limegreen";
-
-            setTimeout(() => {
-                window.location.href = "index.html";
-            }, 1000);
         });
     }
 
