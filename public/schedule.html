@@ -21,6 +21,7 @@
         <div class="nav-logo">AthletiCare<span>AI</span></div>
         <div class="nav-links">
             <a href="index.html">Chatbot</a>
+            <a href="dashboard.html">Dashboard</a>
             <a href="schedule.html" class="active">Scheduling</a>
             <a href="#" id="logoutBtn">Logout</a>
         </div>
@@ -84,14 +85,22 @@
                     <span class="error-message" id="daysError">Select at least one day</span>
                 </div>
 
+                <!-- Date Range -->
+                <div class="form-group-row">
+                    <div class="form-group half-width">
+                        <label for="startDate">Start Date</label>
+                        <input type="date" id="startDate" required />
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="endDate">End Date</label>
+                        <input type="date" id="endDate" required />
+                    </div>
+                </div>
+
                 <!-- Time of Day -->
                 <div class="form-group">
                     <label for="timeOfDay">Time of Day</label>
-                    <input
-                        type="time"
-                        id="timeOfDay"
-                        required
-                    />
+                    <input type="time" id="timeOfDay" required />
                 </div>
 
                 <!-- Optional Notes -->
@@ -155,6 +164,7 @@
     <!-- Toast Notification -->
     <div id="toast" class="toast hidden"></div>
 
+    <script src="js/api.js"></script>
     <script src="js/schedule.js" defer></script>
 </body>
 
