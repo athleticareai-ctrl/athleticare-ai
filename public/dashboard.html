@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>AthletiCare AI | Recovery Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png" />
+</head>
+
+<body>
+
+    <!-- ================= TOP NAV ================= -->
+    <nav class="navbar">
+        <div class="nav-logo">AthletiCare<span>AI</span></div>
+        <div class="nav-links">
+            <a href=" index.html">Chatbot</a>
+            <a href="dashboard.html" class="active">Dashboard</a>
+            <a href="schedule.html">Scheduling</a>
+            <a href="#" id="logoutBtn">Logout</a>
+        </div>
+        <div class="nav-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="dashboard-container">
+
+        <!-- ================= HEADER ================= -->
+        <section class="dashboard-header">
+            <div class="header-content">
+                <h1>Daily Readiness</h1>
+                <p>Track your recovery. Optimize your performance.</p>
+            </div>
+            <div class="date-display" id="currentDate"></div>
+        </section>
+
+        <!-- ================= READINESS SCORE CARD ================= -->
+        <section class="score-section">
+            <div class="score-card">
+                <div class="score-header">
+                    <h2>Today's Readiness Score</h2>
+                    <button id="refreshBtn" class="icon-btn" title="Refresh">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6M1 20v-6h6" />
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Score Display -->
+                <div id="scoreDisplay" class="score-display">
+                    <div class="score-circle" data-score="0">
+                        <svg viewBox="0 0 36 36" class="circle-chart">
+                            <path class="circle-bg"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="circle" stroke-dasharray="0, 100"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <div class="score-value">
+                            <span id="scoreNumber">--</span>
+                        </div>
+                    </div>
+                    <div class="score-status" id="scoreStatus">
+                        <span class="status-label">Complete check-in to see your score</span>
+                    </div>
+                </div>
+
+                <!-- Already Completed State -->
+                <div id="completedState" class="completed-state hidden">
+                    <div class="checkmark-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <path d="M22 4L12 14.01l-3-3" />
+                        </svg>
+                    </div>
+                    <p>Check-in complete for today</p>
+                    <span id="checkInTime"></span>
+                </div>
+            </div>
+
+            <!-- Today's Metrics -->
+            <div id="metricsCard" class="metrics-card hidden">
+                <h3>Today's Metrics</h3>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <span class="metric-label">Sleep Quality</span>
+                        <div class="metric-value" id="sleepValue">--</div>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Muscle Soreness</span>
+                        <div class="metric-value" id="sorenessValue">--</div>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Pain Level</span>
+                        <div class="metric-value" id="energyValue">--</div>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Stress Level</span>
+                        <div class="metric-value" id="stressValue">--</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= CHECK-IN FORM ================= -->
+        <section id="checkInSection" class="checkin-section">
+            <div class="form-card">
+                <div class="form-header">
+                    <h2>Daily Check-In</h2>
+                    <p>Takes 30 seconds. Helps prevent injuries.</p>
+                </div>
+
+                <form id="checkInForm" class="checkin-form">
+                    <!-- Pain Level -->
+                    <div class="form-group">
+                        <label>
+                            <span class="label-text">Pain Level</span>
+                            <span class="label-sub">Any acute or chronic pain today?</span>
+                        </label>
+                        <div class="slider-rating">
+                            <input type="range" name="pain" id="pain" min="0" max="10" value="0" required />
+                            <div class="slider-labels">
+                                <span>No pain (0)</span>
+                                <span>Severe pain (10)</span>
+                            </div>
+                            <span class="slider-value" id="painDisplay">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Mobility -->
+                    <div class="form-group">
+                        <label>
+                            <span class="label-text">Mobility & Stiffness</span>
+                            <span class="label-sub">How do your joints feel?</span>
+                        </label>
+                        <div class="toggle-group">
+                            <input type="radio" name="mobility" id="mobility_poor" value="1" required />
+                            <label for="mobility_poor">Stiff</label>
+                            <input type="radio" name="mobility" id="mobility_fair" value="2" />
+                            <label for="mobility_fair">Fair</label>
+                            <input type="radio" name="mobility" id="mobility_good" value="3" />
+                            <label for="mobility_good">Good</label>
+                            <input type="radio" name="mobility" id="mobility_excellent" value="4" />
+                            <label for="mobility_excellent">Loose</label>
+                        </div>
+                    </div>
+
+                    <!-- Sleep Quality -->
+                    <div class="form-group">
+                        <label>
+                            <span class="label-text">Sleep Quality</span>
+                            <span class="label-sub">Last night's rest</span>
+                        </label>
+                        <div class="star-rating">
+                            <input type="radio" name="sleep" id="sleep5" value="5" required />
+                            <label for="sleep5" title="5 stars">★</label>
+                            <input type="radio" name="sleep" id="sleep4" value="4" />
+                            <label for="sleep4" title="4 stars">★</label>
+                            <input type="radio" name="sleep" id="sleep3" value="3" />
+                            <label for="sleep3" title="3 stars">★</label>
+                            <input type="radio" name="sleep" id="sleep2" value="2" />
+                            <label for="sleep2" title="2 stars">★</label>
+                            <input type="radio" name="sleep" id="sleep1" value="1" />
+                            <label for="sleep1" title="1 star">★</label>
+                        </div>
+                    </div>
+
+                    <!-- Fatigue -->
+                    <div class="form-group">
+                        <label>
+                            <span class="label-text">Fatigue</span>
+                            <span class="label-sub">Current physical energy</span>
+                        </label>
+                        <div class="toggle-group">
+                            <input type="radio" name="fatigue" id="fatigue_exhausted" value="1" required />
+                            <label for="fatigue_exhausted">Exhausted</label>
+                            <input type="radio" name="fatigue" id="fatigue_tired" value="2" />
+                            <label for="fatigue_tired">Tired</label>
+                            <input type="radio" name="fatigue" id="fatigue_normal" value="3" />
+                            <label for="fatigue_normal">Normal</label>
+                            <input type="radio" name="fatigue" id="fatigue_fresh" value="4" />
+                            <label for="fatigue_fresh">Fresh</label>
+                        </div>
+                    </div>
+
+                    <!-- Muscle Soreness -->
+                    <div class="form-group">
+                        <label>
+                            <span class="label-text">Muscle Soreness</span>
+                            <span class="label-sub">How do your muscles feel?</span>
+                        </label>
+                        <div class="slider-rating">
+                            <input type="range" name="soreness" id="soreness" min="1" max="10" value="5" required />
+                            <div class="slider-labels">
+                                <span>No soreness (1)</span>
+                                <span>Extreme (10)</span>
+                            </div>
+                            <span class="slider-value" id="sorenessDisplay">5</span>
+                        </div>
+                    </div>
+
+                    <!-- Stress Level -->
+                    <div class="form-group">
+                        <label>
+                            <span class="label-text">Stress Level</span>
+                            <span class="label-sub">Mental/emotional stress</span>
+                        </label>
+                        <div class="slider-rating">
+                            <input type="range" name="stress" id="stress" min="1" max="10" value="5" required />
+                            <div class="slider-labels">
+                                <span>Low stress (1)</span>
+                                <span>High stress (10)</span>
+                            </div>
+                            <span class="slider-value" id="stressDisplay">5</span>
+                        </div>
+                    </div>
+
+                    <!-- Previous Load -->
+                    <div class="form-group">
+                        <label>
+                            <span class="label-text">Previous Activity Load</span>
+                            <span class="label-sub">How intense was yesterday's training?</span>
+                        </label>
+                        <div class="slider-rating">
+                            <input type="range" name="load" id="load" min="0" max="10" value="5" required />
+                            <div class="slider-labels">
+                                <span>Rest day (0)</span>
+                                <span>Max effort (10)</span>
+                            </div>
+                            <span class="slider-value" id="loadDisplay">5</span>
+                        </div>
+                    </div>
+
+                    <!-- Recovery Confidence -->
+                    <div class="form-group">
+                        <label>
+                            <span class="label-text">Recovery Confidence</span>
+                            <span class="label-sub">How confident are you in your readiness?</span>
+                        </label>
+                        <div class="star-rating">
+                            <input type="radio" name="confidence" id="conf5" value="5" required />
+                            <label for="conf5" title="Very Confident">★</label>
+                            <input type="radio" name="confidence" id="conf4" value="4" />
+                            <label for="conf4" title="Confident">★</label>
+                            <input type="radio" name="confidence" id="conf3" value="3" />
+                            <label for="conf3" title="Neutral">★</label>
+                            <input type="radio" name="confidence" id="conf2" value="2" />
+                            <label for="conf2" title="Doubtful">★</label>
+                            <input type="radio" name="confidence" id="conf1" value="1" />
+                            <label for="conf1" title="Not Confident">★</label>
+                        </div>
+                    </div>
+
+                    <!-- Optional Notes -->
+                    <div class="form-group">
+                        <label>
+                            <span class="label-text">Any specific areas of concern?</span>
+                            <span class="label-sub">Optional</span>
+                        </label>
+                        <textarea id="notes" name="notes" placeholder="Describe any pain or recovery focus areas..."
+                            rows="3"></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <path d="M22 4L12 14.01l-3-3" />
+                        </svg>
+                        Submit Check-In
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ================= RECOMMENDATIONS ================= -->
+        <section id="recommendationsSection" class="recommendations-section hidden">
+            <div class="recommendations-card">
+                <div class="rec-header">
+                    <h2>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                        </svg>
+                        Your Personalized Recommendations
+                    </h2>
+                </div>
+                <div id="recommendationsList" class="recommendations-list"></div>
+                <div class="rec-actions">
+                    <a href="schedule.html" class="rec-btn secondary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                            <path d="M16 2v4M8 2v4M3 10h18" />
+                        </svg>
+                        Add Recovery to Schedule
+                    </a>
+                    <a href="index.html" class="rec-btn primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        Chat About Recovery
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= WEEKLY TRENDS ================= -->
+        <section id="trendsSection" class="trends-section">
+            <div class="trends-card">
+                <div class="trends-header">
+                    <h2>Weekly Trends</h2>
+                    <span class="trends-sub">Last 7 days</span>
+                </div>
+                <div id="trendsChart" class="trends-chart">
+                    <!-- Bars will be injected here -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

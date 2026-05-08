@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>AthletiCare AI | Trainer Sign Up</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/login.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .admin-warning {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #ef4444;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-logo">AthletiCare AI</div>
+        <div class="nav-links">
+            <a href="about.html">About</a>
+            <a href="login1.html">Athlete Login</a>
+            <a href="trainer-login.html">Trainer Login</a>
+            <a href="signup.html" class="nav-cta">Athlete Sign Up</a>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <header class="auth-header">
+                <h1>Trainer Registration</h1>
+                <p>Create a staff dashboard account</p>
+            </header>
+
+            <div class="admin-warning">
+                <strong>Staff Access Only</strong><br>
+                Requires a valid School Admin Code to register.
+            </div>
+
+            <form id="trainer-signup-form">
+                <input type="text" id="firstname" placeholder="First Name" required />
+                <input type="text" id="lastname" placeholder="Last Name" required />
+                <input type="email" id="email" placeholder="School Email" required />
+                <input type="password" id="password" placeholder="Create Password" required />
+                <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+                <div style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                    <input type="text" id="adminCode" placeholder="School Admin Code" required 
+                           style="border-color: rgba(0, 210, 106, 0.3); background: rgba(0, 210, 106, 0.05);" />
+                </div>
+                <button type="submit">Register as Trainer</button>
+            </form>
+
+            <p class="auth-footer">
+                Already have a staff account?
+                <a href="trainer-login.html">Log In</a>
+            </p>
+
+            <p id="message"></p>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/trainer-signup.js"></script>
+</body>
+</html>

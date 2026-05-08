@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>AthletiCare AI | Team Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="css/team-dashboard.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png" />
+</head>
+
+<body>
+
+    <!-- ================= TOP NAV ================= -->
+    <nav class="navbar">
+        <div class="nav-logo">AthletiCare<span>AI</span></div>
+        <div class="nav-links">
+            <a href="team-dashboard.html" class="active">Team Dashboard</a>
+            <a href="#" id="logoutBtn">Logout</a>
+        </div>
+        <div class="nav-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="dashboard-container">
+
+        <!-- ================= HEADER ================= -->
+        <section class="dashboard-header">
+            <div class="header-content">
+                <h1>Team Readiness Dashboard</h1>
+                <p>Monitor athlete recovery and identify injury risk</p>
+            </div>
+            <div class="date-display" id="currentDate"></div>
+        </section>
+
+        <!-- ================= SUMMARY STATS ================= -->
+        <section class="stats-section">
+            <div class="stat-card">
+                <div class="stat-icon good">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value" id="readyCount">0</span>
+                    <span class="stat-label">Ready to Perform</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon moderate">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value" id="monitorCount">0</span>
+                    <span class="stat-label">Monitor / Modify</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon poor">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value" id="recoveryCount">0</span>
+                    <span class="stat-label">Recovery Needed</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon warning">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value" id="noCheckInCount">0</span>
+                    <span class="stat-label">No Check-In Today</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ATTENTION ALERT ================= -->
+        <div id="attentionAlert" class="attention-alert hidden">
+            <div class="alert-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
+            <div class="alert-content">
+                <strong>Athletes Needing Attention</strong>
+                <span id="attentionList"></span>
+            </div>
+        </div>
+
+        <!-- ================= ATHLETE TABLE ================= -->
+        <section class="table-section">
+            <div class="table-card">
+                <div class="table-header">
+                    <h2>Athlete Readiness</h2>
+                    <div class="table-actions">
+                        <button id="refreshBtn" class="icon-btn" title="Refresh">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 4v6h-6M1 20v-6h6"/>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="athlete-table">
+                        <thead>
+                            <tr>
+                                <th>Athlete</th>
+                                <th>Score</th>
+                                <th>Status</th>
+                                <th>Trend</th>
+                                <th>Key Concern</th>
+                                <th>Last Check-In</th>
+                            </tr>
+                        </thead>
+                        <tbody id="athleteTableBody">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state hidden">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <p>No athlete data available</p>
+                    <span>Athletes need to complete their daily check-ins</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Athlete Profile Modal -->
+    <div id="athleteProfileModal" class="modal-overlay hidden">
+        <div class="profile-modal">
+            <header class="modal-header">
+                <div class="athlete-meta">
+                    <div id="modalAvatar" class="athlete-avatar large">--</div>
+                    <div class="meta-content">
+                        <h2 id="modalAthleteName">Athlete Name</h2>
+                        <p id="modalAthleteSport">Sport | Position</p>
+                    </div>
+                </div>
+                <button id="closeModalBtn" class="close-btn">&times;</button>
+            </header>
+
+            <div class="modal-body">
+                <div class="modal-grid">
+                    <!-- Left Column: Trends & Stats -->
+                    <div class="modal-main">
+                        <section class="profile-section">
+                            <div class="section-header">
+                                <h3>Readiness Trends</h3>
+                                <span class="timeframe">Last 7 Days</span>
+                            </div>
+                            <div id="readinessChart" class="trend-chart-container">
+                                <!-- Bars injected by JS -->
+                            </div>
+                        </section>
+
+                        <section class="profile-section">
+                            <div class="section-header">
+                                <h3>Statistics & Insights</h3>
+                            </div>
+                            <div class="stats-grid">
+                                <div class="mini-stat">
+                                    <span class="label">Avg Score</span>
+                                    <span id="avgScore" class="value">--</span>
+                                </div>
+                                <div class="mini-stat">
+                                    <span class="label">Recovery Consistency</span>
+                                    <span id="recoveryConsistency" class="value">--</span>
+                                </div>
+                                <div class="mini-stat">
+                                    <span class="label">Low Score Freq</span>
+                                    <span id="lowScoreFreq" class="value">--</span>
+                                </div>
+                                <div class="mini-stat">
+                                    <span class="label">Primary Concern</span>
+                                    <span id="primaryConcern" class="value">--</span>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Right Column: Info & Notes -->
+                    <div class="modal-sidebar">
+                        <section class="profile-section">
+                            <div class="section-header">
+                                <h3>Athlete Info</h3>
+                            </div>
+                            <div class="info-list">
+                                <div class="info-item">
+                                    <span class="label">Grade:</span>
+                                    <span id="infoGrade">--</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Age:</span>
+                                    <span id="infoAge">--</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Training Freq:</span>
+                                    <span id="infoTraining">--</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Status:</span>
+                                    <span id="infoStatus">--</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="profile-section">
+                            <div class="section-header">
+                                <h3>Risk Indicators</h3>
+                            </div>
+                            <div id="riskIndicators" class="risk-list">
+                                <!-- Risk badges injected by JS -->
+                            </div>
+                        </section>
+
+                        <section class="profile-section">
+                            <div class="section-header">
+                                <h3>Trainer Notes</h3>
+                            </div>
+                            <textarea id="trainerNotes" placeholder="Add observations, injury updates, or progress notes..."></textarea>
+                            <button id="saveNotesBtn" class="save-notes-btn">Save Notes</button>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/team-dashboard.js" defer></script>
+</body>
+
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>AthletiCare AI | Athlete Onboarding</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="css/onboarding.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="favicon.png" />
+</head>
+
+<body>
+
+    <div class="onboarding-container">
+        <div class="onboarding-card">
+            
+            <header class="onboarding-header">
+                <h1>Welcome to AthletiCare</h1>
+                <p>Let's personalize your recovery experience.</p>
+            </header>
+
+            <form id="onboardingForm">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sport">Primary Sport</label>
+                        <select id="sport" class="form-control" required>
+                            <option value="">Select a sport...</option>
+                            <option value="Football">Football</option>
+                            <option value="Basketball">Basketball</option>
+                            <option value="Soccer">Soccer</option>
+                            <option value="Track & Field">Track & Field</option>
+                            <option value="Cross Country">Cross Country</option>
+                            <option value="Baseball">Baseball</option>
+                            <option value="Volleyball">Volleyball</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="grade">Grade / Year</label>
+                        <select id="grade" class="form-control" required>
+                            <option value="">Select grade...</option>
+                            <option value="Freshman">Freshman</option>
+                            <option value="Sophomore">Sophomore</option>
+                            <option value="Junior">Junior</option>
+                            <option value="Senior">Senior</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" class="form-control" min="12" max="25" placeholder="e.g. 16" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="position">Position <span class="optional-tag">Optional</span></label>
+                        <input type="text" id="position" class="form-control" placeholder="e.g. Quarterback">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="trainingFreq">Training Frequency</label>
+                    <select id="trainingFreq" class="form-control" required>
+                        <option value="">Select frequency...</option>
+                        <option value="1-2">1-2 days / week</option>
+                        <option value="3-4">3-4 days / week</option>
+                        <option value="5-6">5-6 days / week</option>
+                        <option value="Everyday">Every day</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="recoveryGoal">Primary Recovery Goal</label>
+                    <select id="recoveryGoal" class="form-control" required>
+                        <option value="">Select a goal...</option>
+                        <option value="Injury Prevention">Injury Prevention</option>
+                        <option value="Performance Optimization">Performance Optimization</option>
+                        <option value="Manage Existing Pain">Manage Existing Pain</option>
+                        <option value="Improve Mobility">Improve Flexibility & Mobility</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="heightWeight">Height & Weight <span class="optional-tag">Optional</span></label>
+                        <input type="text" id="heightWeight" class="form-control" placeholder="e.g. 5'10, 160 lbs">
+                    </div>
+                    <div class="form-group">
+                        <label for="mobilityLimitation">Mobility Limitations <span class="optional-tag">Optional</span></label>
+                        <input type="text" id="mobilityLimitation" class="form-control" placeholder="e.g. Tight hamstrings">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Complete Setup</button>
+                <div id="error-message" class="error-message"></div>
+            </form>
+
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/onboarding.js"></script>
+</body>
+
+</html>

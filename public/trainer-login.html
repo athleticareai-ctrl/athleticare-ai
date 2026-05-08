@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>AthletiCare AI | Trainer Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="css/login.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png" />
+
+    <style>
+        /* Demo Mode Banner */
+        .demo-banner {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: #f59e0b;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .demo-banner strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .auth-header h1 {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-logo">AthletiCare AI</div>
+        <div class="nav-links">
+            <a href="about.html">About</a>
+            <a href="login1.html">Athlete Login</a>
+            <a href="trainer-login.html" class="active">Trainer Login</a>
+            <a href="signup.html" class="nav-cta">Sign Up</a>
+        </div>
+        <div class="nav-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <div class="auth-card">
+
+            <header class="auth-header">
+                <h1>Trainer Portal</h1>
+                <p>Team readiness dashboard access</p>
+            </header>
+
+            <form id="trainer-form">
+                <input type="text" id="trainerUsername" placeholder="Email or Username" required />
+                <input type="password" id="trainerPassword" placeholder="Password" required />
+                <button type="submit">Log In</button>
+            </form>
+
+            <p id="loginMessage"></p>
+            <p class="auth-footer" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                New staff member?
+                <a href="trainer-signup.html">Register here</a>
+            </p>
+
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/trainer-login.js"></script>
+</body>
+
+</html>
