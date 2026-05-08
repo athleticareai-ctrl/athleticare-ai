@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let email = document.getElementById("trainerUsername").value.trim();
         const password = document.getElementById("trainerPassword").value;
+        const accessCode = document.getElementById("trainerAccessCode").value.trim().toUpperCase();
 
         // Bridge: allow 'trainer' as a shortcut for 'trainer@school.edu'
         if (email === "trainer") {
@@ -37,6 +38,11 @@ document.addEventListener("DOMContentLoaded", () => {
             // Verify if user is actually a trainer
             if (response.user.role !== 'trainer') {
                 throw new Error("Access denied. This portal is for Athletic Trainers only.");
+            }
+
+            // Verify access code
+            if (response.user.accessCode !== accessCode) {
+                throw new Error("Invalid Team Access Code for this account.");
             }
 
             // Success - store session
@@ -73,3 +79,4 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
