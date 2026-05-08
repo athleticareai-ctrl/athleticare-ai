@@ -3,6 +3,7 @@ import { open } from 'sqlite';
 import path from 'path';
 import bcrypt from 'bcryptjs';
 
+
 const __dirname = path.resolve();
 const dbPath = path.join(__dirname, 'athleticare.db');
 
