@@ -19,7 +19,8 @@
         <div class="nav-logo">AthletiCare AI</div>
         <div class="nav-links">
             <a href="about.html">About</a>
-            <a href="login1.html">Login</a>
+            <a href="login1.html" class="active">Athlete Login</a>
+            <a href="trainer-login.html">Trainer Login</a>
             <a href="signup.html" class="nav-cta">Sign Up</a>
         </div>
         <div class="nav-toggle">
@@ -40,6 +41,7 @@
             <form id="login-form">
                 <input type="email" id="loginEmail" placeholder="Email Address" required />
                 <input type="password" id="loginPassword" placeholder="Password" required />
+                <input type="text" id="access-code-input" placeholder="Access Code (optional for non-school affiliated users)" />
                 <button type="submit">Log In</button>
             </form>
 
@@ -53,6 +55,7 @@
         </div>
     </div>
 
+    <script src="js/api.js"></script>
     <script src="js/login.js" defer></script>
 </body>
 
