@@ -55,14 +55,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem("currentUser", JSON.stringify(response.user));
 
                 // Show success
-                errorMessage.textContent = "Account created! Redirecting to setup...";
+                errorMessage.textContent = "Account created! Redirecting...";
                 errorMessage.style.color = "limegreen";
 
                 signupForm.reset();
 
-                // Redirect to onboarding
+                // Redirect based on whether onboarding is needed
                 setTimeout(() => {
-                    window.location.href = "onboarding.html";
+                    if (response.user.onboardingComplete) {
+                        window.location.href = "index.html";
+                    } else {
+                        window.location.href = "onboarding.html";
+                    }
                 }, 1000);
             } catch (err) {
                 errorMessage.textContent = err.message;
