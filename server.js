@@ -152,14 +152,17 @@ const groq = new Groq({
 // AUTH: Signup
 app.post("/api/auth/signup", async (req, res) => {
     const { email, password, firstname, lastname, accessCode } = req.body;
+    // Non-affiliated users (no access code) skip onboarding
+    const isAffiliated = accessCode && accessCode.trim().length > 0;
+    const onboardingComplete = isAffiliated ? 0 : 1;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         await db.run(
-            "INSERT INTO users (email, password, firstname, lastname, accessCode) VALUES (?, ?, ?, ?, ?)",
-            [email, hashedPassword, firstname, lastname, accessCode]
+            "INSERT INTO users (email, password, firstname, lastname, accessCode, onboardingComplete) VALUES (?, ?, ?, ?, ?, ?)",
+            [email, hashedPassword, firstname, lastname, accessCode || null, onboardingComplete]
         );
         const token = jwt.sign({ email, role: 'athlete' }, JWT_SECRET, { expiresIn: '24h' });
-        const user = { email, firstname, lastname, role: 'athlete', onboardingComplete: 0, profile: null };
+        const user = { email, firstname, lastname, role: 'athlete', onboardingComplete, profile: null };
         res.status(201).json({ success: true, token, user });
     } catch (err) {
         if (err.message.includes("UNIQUE")) return res.status(400).json({ error: "Email already exists" });
@@ -238,11 +241,28 @@ app.get("/api/checkins", authenticateToken, async (req, res) => {
 // TRAINER: Team Data
 app.get("/api/trainer/team", authenticateToken, async (req, res) => {
     try {
-        const users = await db.all("SELECT email, firstname, lastname, accessCode, onboardingComplete, profile FROM users WHERE accessCode = 'WEYMOUTH' AND role = 'athlete'");
+        // Look up the trainer's own accessCode so we dynamically filter the right team
+        const trainer = await db.get("SELECT accessCode FROM users WHERE email = ?", [req.user.email]);
+        const teamCode = trainer?.accessCode || "WEYMOUTH";
+
+        const users = await db.all(
+            "SELECT email, firstname, lastname, accessCode, onboardingComplete, profile FROM users WHERE accessCode = ? AND role = 'athlete'",
+            [teamCode]
+        );
+
         const athletes = [];
         for (const user of users) {
-            const lastCheckin = await db.get("SELECT score, date, data, timestamp FROM checkins WHERE userEmail = ? ORDER BY timestamp DESC LIMIT 1", [user.email]);
-            athletes.push({ ...user, profile: JSON.parse(user.profile || "{}"), lastCheckin: lastCheckin ? { ...lastCheckin, data: JSON.parse(lastCheckin.data) } : null });
+            // Return ALL check-ins for each athlete (not just the last one)
+            const checkins = await db.all(
+                "SELECT score, date, data, timestamp FROM checkins WHERE userEmail = ? ORDER BY timestamp DESC",
+                [user.email]
+            );
+            const parsedCheckins = checkins.map(c => ({ ...c, data: JSON.parse(c.data) }));
+
+            athletes.push({
+                user: { ...user, profile: JSON.parse(user.profile || "{}") },
+                checkins: parsedCheckins
+            });
         }
         res.json(athletes);
     } catch (err) {
