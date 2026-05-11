@@ -212,6 +212,7 @@ async function loadTrends() {
             }
         }
         renderTrendsChart(checkins);
+        renderAnalytics(checkins);
     } catch (err) {
         console.error("Load trends failed:", err);
     }
@@ -248,4 +249,44 @@ function showToast(message, type = "success") {
     toast.textContent = message;
     toast.className = `toast ${type} show`;
     setTimeout(() => toast.classList.remove("show"), 3000);
+}
+
+// ================= PERSONAL ANALYTICS =================
+function renderAnalytics(checkins) {
+    if (!checkins || checkins.length === 0) return;
+
+    const total = checkins.length;
+    const avg = Math.round(checkins.reduce((s, c) => s + c.score, 0) / total);
+    const best = Math.max(...checkins.map(c => c.score));
+    const lowDays = checkins.filter(c => c.score < 60).length;
+
+    const el = (id) => document.getElementById(id);
+    if (el("totalCheckins")) el("totalCheckins").textContent = total;
+    if (el("avgScore")) el("avgScore").textContent = avg;
+    if (el("bestScore")) el("bestScore").textContent = best;
+    if (el("lowReadinessDays")) el("lowReadinessDays").textContent = lowDays;
+
+    const tbody = el("historyBody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    checkins.forEach(c => {
+        const scoreClass = c.score >= 80 ? "good" : c.score >= 60 ? "moderate" : "poor";
+        const label = c.score >= 80 ? "Ready" : c.score >= 60 ? "Monitor" : "Recovery";
+        const d = c.data || {};
+        const dateStr = new Date(c.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${dateStr}</td>
+            <td><strong>${c.score}</strong></td>
+            <td><span class="badge ${scoreClass}">${label}</span></td>
+            <td>${d.pain ?? "—"}</td>
+            <td>${d.soreness ?? "—"}</td>
+            <td>${d.sleep ?? "—"}</td>
+            <td>${d.stress ?? "—"}</td>
+            <td>${d.fatigue ?? "—"}</td>
+        `;
+        tbody.appendChild(row);
+    });
 }
