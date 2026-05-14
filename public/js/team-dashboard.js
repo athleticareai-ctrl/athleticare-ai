@@ -209,7 +209,8 @@ function formatLastCheckIn(lastCheckIn) {
     if (!lastCheckIn) return "Never";
     const date = new Date(lastCheckIn.timestamp);
     const now = new Date();
-    const daysAgo = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+    // Use Math.max(0, ...) to avoid negative days due to clock drift
+    const daysAgo = Math.max(0, Math.floor((now - date) / (1000 * 60 * 60 * 24)));
     if (daysAgo === 0) return "Today";
     if (daysAgo === 1) return "Yesterday";
     return `${daysAgo} days ago`;
@@ -241,9 +242,11 @@ async function openAthleteProfile(email) {
     document.getElementById("infoTraining").textContent = user.profile?.trainingFreq || "--";
 
     // Re-use existing UI logic
+    const latestCheckin = allCheckins.length > 0 ? allCheckins[0] : null;
     calculateAthleteStats(allCheckins.map(c => ({ ...c.data, score: c.score, timestamp: c.timestamp })));
     renderAthleteChart(allCheckins.map(c => ({ ...c.data, score: c.score, date: c.date })));
     renderRisks(allCheckins.map(c => ({ ...c.data, score: c.score })));
+    renderRecommendations(latestCheckin ? latestCheckin.score : 0, latestCheckin ? latestCheckin.data : {}, user.profile || {});
 
     modal.classList.remove("hidden");
     document.body.style.overflow = "hidden";
@@ -291,6 +294,82 @@ function renderRisks(checkins) {
         badge.textContent = "Low Readiness Alert";
         container.appendChild(badge);
     }
+}
+
+// ================= RECOMMENDATIONS =================
+function getSpecificRecommendations(data) {
+    const recommendations = [];
+    if (!data) return recommendations;
+
+    // Pain Level (0-10)
+    if (data.pain >= 9) recommendations.push({ title: "Critical Pain Alert", text: "High injury risk. Stop training immediately. Professional evaluation required.", type: "danger" });
+    else if (data.pain >= 6) recommendations.push({ title: "Significant Pain", text: "Limit intensity. Consult trainer for assessment before starting.", type: "warning" });
+    else if (data.pain >= 3) recommendations.push({ title: "Mild Pain", text: "Consider active recovery. Focus on low-impact movements.", type: "info" });
+
+    // Mobility (1-4)
+    if (data.mobility === 1) recommendations.push({ title: "Mobility Focus", text: "Prioritize 15-20 min of dynamic stretching and foam rolling.", type: "info" });
+    else if (data.mobility === 4) recommendations.push({ title: "Stability Note", text: "Optimal mobility. Focus on stability exercises during warm-up.", type: "success" });
+
+    // Sleep (1-5)
+    if (data.sleep <= 2) recommendations.push({ title: "Sleep Deficit", text: "Extreme fatigue risk. Focus on technique over intensity. Prioritize an early night.", type: "danger" });
+    else if (data.sleep === 3) recommendations.push({ title: "Rest Monitor", text: "Moderate rest. Monitor energy levels during peak sets.", type: "info" });
+
+    // Fatigue (1-4)
+    if (data.fatigue === 1) recommendations.push({ title: "CNS Fatigue", text: "High central nervous system fatigue. Consider a deload or complete rest day.", type: "danger" });
+    else if (data.fatigue === 2) recommendations.push({ title: "Energy Management", text: "Limit volume but maintain intensity if needed.", type: "warning" });
+    else if (data.fatigue === 4) recommendations.push({ title: "Peak Energy", text: "Opportunity for high performance/PR attempts today.", type: "success" });
+
+    // Soreness (1-10)
+    if (data.soreness >= 7) recommendations.push({ title: "High Soreness (DOMS)", text: "Focus on different muscle groups or low-intensity recovery.", type: "warning" });
+    else if (data.soreness >= 4) recommendations.push({ title: "Mild Soreness", text: "Light cardio to increase blood flow recommended.", type: "info" });
+
+    // Stress (1-10)
+    if (data.stress >= 7) recommendations.push({ title: "High Mental Load", text: "Shorten session duration. Focus on 'fun' or low-pressure drills.", type: "warning" });
+    else if (data.stress >= 4) recommendations.push({ title: "Moderate Stress", text: "Practice mindfulness or deep breathing before session.", type: "info" });
+
+    // Load (0-10)
+    if (data.load >= 8) recommendations.push({ title: "Heavy Load Recovery", text: "Heavy load yesterday. High risk of overtraining. Consider recovery focus.", type: "warning" });
+
+    // Confidence (1-5)
+    if (data.confidence <= 2) recommendations.push({ title: "Mental Readiness", text: "Low readiness mindset. Focus on small wins and technique.", type: "info" });
+
+    return recommendations;
+}
+
+function renderRecommendations(score, data, profile) {
+    const container = document.getElementById("modalRecommendations");
+    if (!container) return;
+    container.innerHTML = "";
+
+    if (!data || Object.keys(data).length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.85rem;">No check-in data for today</p>';
+        return;
+    }
+
+    const sport = profile.sport?.toLowerCase() || "";
+    const generalTips = [];
+    if (score >= 80) {
+        generalTips.push({ title: "Green Light", text: "Athlete is in an optimal state for training.", type: "success" });
+    } else if (score >= 60) {
+        generalTips.push({ title: "Caution", text: "Moderate intensity recommended. Monitor for fatigue.", type: "warning" });
+    } else {
+        generalTips.push({ title: "Recovery Focus", text: "Prioritize rest and light mobility today.", type: "danger" });
+    }
+
+    const specificTips = getSpecificRecommendations(data);
+    const allTips = [...generalTips, ...specificTips];
+
+    // Sport specific addition
+    if (sport.includes("football") && data.pain >= 6) {
+        allTips.push({ title: "Contact Alert", text: "Avoid high-contact drills today due to pain levels.", type: "danger" });
+    }
+
+    allTips.forEach(tip => {
+        const div = document.createElement("div");
+        div.className = `recommendation-item ${tip.type || ''}`;
+        div.innerHTML = `<h4>${tip.title}</h4><p>${tip.text}</p>`;
+        container.appendChild(div);
+    });
 }
 
 // Event Listeners
