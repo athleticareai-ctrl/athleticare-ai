@@ -1007,3 +1007,39 @@ body {
     }
 }
 
+/* ================= RECOMMENDATIONS LIST ================= */
+.recommendations-list-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.recommendation-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 12px;
+    border-left: 4px solid var(--text-secondary);
+}
+
+.recommendation-item h4 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+}
+
+.recommendation-item p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.recommendation-item.success { border-left-color: var(--score-good); }
+.recommendation-item.warning { border-left-color: var(--score-moderate); }
+.recommendation-item.danger { border-left-color: var(--score-poor); }
+.recommendation-item.info { border-left-color: #3b82f6; }
+
+.recommendation-item.success h4 { color: var(--score-good); }
+.recommendation-item.warning h4 { color: var(--score-moderate); }
+.recommendation-item.danger h4 { color: var(--score-poor); }
+.recommendation-item.info h4 { color: #3b82f6; }
