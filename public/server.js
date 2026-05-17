@@ -1,3 +1,12 @@
+// AthletiCare AI Server - Updated: 2026-05-08T20:55:00
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import Groq from "groq-sdk";
+import nodemailer from "nodemailer";
+import path from "path";
+import bcrypt from "bcryptjs";
+// AthletiCare AI Server - Updated: 2026-05-17
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -8,9 +17,9 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
+import fs from 'fs';
 
 dotenv.config();
-
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,7 +27,13 @@ const JWT_SECRET = process.env.JWT_SECRET || "athleticare-secret-key";
 
 // ================= DATABASE SETUP =================
 let db;
-const dbPath = path.join(path.resolve(), 'athleticare.db');
+const dbPath = process.env.DB_PATH || path.join(path.resolve(), 'athleticare.db');
+
+// Ensure parent directory exists (needed if mounted to /data on Railway)
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+}
 
 async function initDb() {
     const database = await open({
@@ -92,7 +107,7 @@ async function initDb() {
     if (!trainer) {
         const hashedPass = await bcrypt.hash("athleticare", 10);
         await database.run(
-            "INSERT INTO users (email, password, firstname, lastname, role, accessCode) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO users (email, password, firstname, lastname, role, accessCode, onboardingComplete) VALUES (?, ?, ?, ?, ?, ?, 1)",
             ["trainer@school.edu", hashedPass, "Head", "Trainer", "trainer", "WEYMOUTH"]
         );
     }
@@ -103,12 +118,12 @@ async function initDb() {
 const startServer = async () => {
     try {
         db = await initDb();
-        console.log("Database initialized ✅");
+        console.log("SQLite Database initialized and connected ✅");
         app.listen(PORT, () => {
             console.log(`Server running at http://localhost:${PORT} ✅`);
         });
     } catch (err) {
-        console.error("Failed to initialize database ❌", err);
+        console.error("Failed to initialize SQLite database ❌", err);
         process.exit(1);
     }
 };
@@ -118,6 +133,15 @@ startServer();
 // ================= MIDDLEWARE =================
 app.use(cors());
 app.use(express.json());
+
+// Native Security Headers Middleware
+app.use((req, res, next) => {
+    res.setHeader("X-Frame-Options", "DENY");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-XSS-Protection", "1; mode=block");
+    res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    next();
+});
 
 // ================= EMAIL SETUP =================
 const transporter = nodemailer.createTransport({
@@ -142,6 +166,15 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+const requireRole = (role) => {
+    return (req, res, next) => {
+        if (!req.user || req.user.role !== role) {
+            return res.status(403).json({ error: "Access denied. Insufficient permissions." });
+        }
+        next();
+    };
+};
+
 // ================= API ROUTES =================
 
 // AI SETUP
@@ -152,14 +185,16 @@ const groq = new Groq({
 // AUTH: Signup
 app.post("/api/auth/signup", async (req, res) => {
     const { email, password, firstname, lastname, accessCode } = req.body;
+    const isAffiliated = accessCode && accessCode.trim().length > 0;
+    const onboardingComplete = isAffiliated ? 0 : 1;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         await db.run(
-            "INSERT INTO users (email, password, firstname, lastname, accessCode) VALUES (?, ?, ?, ?, ?)",
-            [email, hashedPassword, firstname, lastname, accessCode]
+            "INSERT INTO users (email, password, firstname, lastname, accessCode, onboardingComplete) VALUES (?, ?, ?, ?, ?, ?)",
+            [email, hashedPassword, firstname, lastname, accessCode || null, onboardingComplete]
         );
         const token = jwt.sign({ email, role: 'athlete' }, JWT_SECRET, { expiresIn: '24h' });
-        const user = { email, firstname, lastname, role: 'athlete', onboardingComplete: 0, profile: null };
+        const user = { email, firstname, lastname, role: 'athlete', onboardingComplete, profile: null };
         res.status(201).json({ success: true, token, user });
     } catch (err) {
         if (err.message.includes("UNIQUE")) return res.status(400).json({ error: "Email already exists" });
@@ -236,17 +271,55 @@ app.get("/api/checkins", authenticateToken, async (req, res) => {
 });
 
 // TRAINER: Team Data
-app.get("/api/trainer/team", authenticateToken, async (req, res) => {
+app.get("/api/trainer/team", authenticateToken, requireRole("trainer"), async (req, res) => {
     try {
-        const users = await db.all("SELECT email, firstname, lastname, accessCode, onboardingComplete, profile FROM users WHERE accessCode = 'WEYMOUTH' AND role = 'athlete'");
+        const trainer = await db.get("SELECT accessCode FROM users WHERE email = ?", [req.user.email]);
+        const teamCode = trainer?.accessCode || "WEYMOUTH";
+
+        const users = await db.all(
+            "SELECT email, firstname, lastname, accessCode, onboardingComplete, profile FROM users WHERE accessCode = ? AND role = 'athlete'",
+            [teamCode]
+        );
+
         const athletes = [];
         for (const user of users) {
-            const lastCheckin = await db.get("SELECT score, date, data, timestamp FROM checkins WHERE userEmail = ? ORDER BY timestamp DESC LIMIT 1", [user.email]);
-            athletes.push({ ...user, profile: JSON.parse(user.profile || "{}"), lastCheckin: lastCheckin ? { ...lastCheckin, data: JSON.parse(lastCheckin.data) } : null });
+            const checkins = await db.all(
+                "SELECT score, date, data, timestamp FROM checkins WHERE userEmail = ? ORDER BY timestamp DESC",
+                [user.email]
+            );
+            const parsedCheckins = checkins.map(c => ({ ...c, data: JSON.parse(c.data) }));
+
+            athletes.push({
+                user: { ...user, profile: JSON.parse(user.profile || "{}") },
+                checkins: parsedCheckins
+            });
         }
         res.json(athletes);
     } catch (err) {
         res.status(500).json({ error: "Failed to fetch team data" });
+    }
+});
+
+// TRAINER NOTES: Get notes for an athlete
+app.get("/api/trainer/notes/:athleteEmail", authenticateToken, requireRole("trainer"), async (req, res) => {
+    const { athleteEmail } = req.params;
+    try {
+        const rows = await db.all("SELECT notes, timestamp FROM trainer_notes WHERE athleteEmail = ? ORDER BY timestamp DESC", [athleteEmail]);
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to fetch trainer notes" });
+    }
+});
+
+// TRAINER NOTES: Save notes for an athlete
+app.post("/api/trainer/notes", authenticateToken, requireRole("trainer"), async (req, res) => {
+    const { athleteEmail, notes } = req.body;
+    try {
+        await db.run("DELETE FROM trainer_notes WHERE athleteEmail = ?", [athleteEmail]);
+        await db.run("INSERT INTO trainer_notes (athleteEmail, notes) VALUES (?, ?)", [athleteEmail, notes]);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to save trainer notes" });
     }
 });
 
@@ -289,12 +362,3 @@ app.post("/chat", authenticateToken, async (req, res) => {
 app.all("/api/*", (req, res) => res.status(404).json({ error: "Route not found" }));
 app.use(express.static("public"));
 app.get("*", (req, res) => res.sendFile(path.join(path.resolve(), "public", "index.html")));
-
-
-
-
-
-
-
-
-
