@@ -1,8 +1,8 @@
 // ================= TRAINER AUTH GUARD =================
-// Simple trainer check for demo purposes
-// In production, this would be a real session check
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-if (!currentUser) {
+if (!currentUser || currentUser.role !== "trainer") {
+    localStorage.removeItem("token");
+    localStorage.removeItem("currentUser");
     window.location.href = "trainer-login.html";
 }
 
@@ -28,6 +28,7 @@ const athleteTableBody = document.getElementById("athleteTableBody");
 const emptyState = document.getElementById("emptyState");
 const toast = document.getElementById("toast");
 const refreshBtn = document.getElementById("refreshBtn");
+const teamSportFilter = document.getElementById("teamSportFilter");
 
 // Modal Elements
 const modal = document.getElementById("athleteProfileModal");
@@ -37,12 +38,36 @@ const saveNotesBtn = document.getElementById("saveNotesBtn");
 
 let activeAthleteEmail = null;
 let teamData = [];
+let filteredData = [];
 
 // ================= INITIALIZATION =================
 document.addEventListener("DOMContentLoaded", () => {
     displayCurrentDate();
     loadTeamData();
+
+    if (teamSportFilter) {
+        teamSportFilter.addEventListener("change", (e) => {
+            const selectedSport = e.target.value;
+            filterDataBySport(selectedSport);
+        });
+    }
 });
+
+function filterDataBySport(sport) {
+    if (sport === "all") {
+        filteredData = [...teamData];
+    } else {
+        filteredData = teamData.filter(athlete => {
+            const athleteSport = (athlete.user.profile?.sport || "").toLowerCase();
+            return athleteSport === sport.toLowerCase();
+        });
+    }
+
+    // Update UI with filtered data
+    updateStats(filteredData);
+    renderTable(filteredData);
+    updateAlert(filteredData);
+}
 
 // ================= DISPLAY DATE =================
 function displayCurrentDate() {
@@ -54,7 +79,7 @@ function displayCurrentDate() {
 async function loadTeamData() {
     try {
         const athletes = await api.get("/trainer/team");
-        
+
         // Transform data for rendering
         teamData = athletes.map(athlete => {
             const checkins = athlete.checkins || [];
@@ -78,9 +103,9 @@ async function loadTeamData() {
         });
 
         // Update UI
-        updateStats(teamData);
-        renderTable(teamData);
-        updateAlert(teamData);
+        filteredData = [...teamData];
+        const selectedSport = teamSportFilter ? teamSportFilter.value : "all";
+        filterDataBySport(selectedSport);
 
     } catch (err) {
         console.error("Load team data failed:", err);
@@ -94,6 +119,7 @@ function updateStats(data) {
     let monitor = 0;
     let recovery = 0;
     let noCheckIn = 0;
+    let total = data.length || 1;
 
     data.forEach(athlete => {
         if (!athlete.today) {
@@ -111,6 +137,20 @@ function updateStats(data) {
     monitorCountEl.textContent = monitor;
     recoveryCountEl.textContent = recovery;
     noCheckInCountEl.textContent = noCheckIn;
+
+    // Calculate Executive Summary Stats
+    const availability = Math.round(((ready + monitor) / total) * 100);
+    const compliance = Math.round(((total - noCheckIn) / total) * 100);
+    const highRisk = recovery + (data.filter(a => a.today && a.yesterday && a.today.score < a.yesterday.score - 15).length);
+
+    // Update Executive UI
+    const availEl = document.getElementById("availabilityPct");
+    const flagsEl = document.getElementById("highRiskFlags");
+    const complianceEl = document.getElementById("complianceRate");
+
+    if (availEl) availEl.textContent = `${availability}%`;
+    if (flagsEl) flagsEl.textContent = highRisk;
+    if (complianceEl) complianceEl.textContent = `${compliance}%`;
 }
 
 // ================= UPDATE ALERT =================
@@ -155,7 +195,7 @@ function renderTable(data) {
 
     athleteTableBody.innerHTML = data.map(athlete => {
         const { user, today, yesterday, lastCheckIn } = athlete;
-        
+
         let scoreDisplay = "--", statusClass = "none", statusText = "No Check-In", scoreClass = "none";
         if (today) {
             scoreDisplay = today.score;
@@ -165,6 +205,7 @@ function renderTable(data) {
         }
 
         const initial = user.firstname.charAt(0).toUpperCase();
+        const sport = user.profile?.sport || "General";
 
         return `
             <tr onclick="openAthleteProfile('${user.email}')">
@@ -177,6 +218,7 @@ function renderTable(data) {
                         </div>
                     </div>
                 </td>
+                <td><span class="sport-badge">${escapeHtml(sport)}</span></td>
                 <td><span class="score-cell ${scoreClass}">${scoreDisplay}</span></td>
                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                 <td><span class="trend-cell">${calculateTrend(today, yesterday)}</span></td>
@@ -196,12 +238,15 @@ function calculateTrend(today, yesterday) {
 }
 
 function getKeyConcern(today) {
-    if (!today) return '<span class="text-secondary">None</span>';
+    if (!today) return '<span class="text-secondary">—</span>';
     const concerns = [];
     if (today.pain >= 6) concerns.push("Pain");
     if (today.sleep <= 2) concerns.push("Sleep");
     if (today.fatigue <= 1) concerns.push("Fatigue");
-    if (concerns.length > 0) return `<span style="color: #ef4444; font-weight: 500;">${concerns.join(", ")}</span>`;
+    
+    if (concerns.length > 0) {
+        return `<span class="concern-circle">${concerns[0]}</span>`;
+    }
     return '<span class="text-secondary">None</span>';
 }
 
@@ -236,10 +281,10 @@ async function openAthleteProfile(email) {
     document.getElementById("modalAthleteName").textContent = user.firstname;
     document.getElementById("modalAthleteSport").textContent = `${user.profile?.sport || "Sport"}`;
     document.getElementById("modalAvatar").textContent = user.firstname.charAt(0).toUpperCase();
-    
+
     document.getElementById("infoGrade").textContent = user.profile?.grade || "--";
     document.getElementById("infoAge").textContent = user.profile?.age || "--";
-    document.getElementById("infoTraining").textContent = user.profile?.trainingFreq || "--";
+    document.getElementById("infoTraining").textContent = user.profile?.trainingFreq ? `${user.profile.trainingFreq} days` : "--";
 
     // Re-use existing UI logic
     const latestCheckin = allCheckins.length > 0 ? allCheckins[0] : null;
@@ -247,6 +292,7 @@ async function openAthleteProfile(email) {
     renderAthleteChart(allCheckins.map(c => ({ ...c.data, score: c.score, date: c.date })));
     renderRisks(allCheckins.map(c => ({ ...c.data, score: c.score })));
     renderRecommendations(latestCheckin ? latestCheckin.score : 0, latestCheckin ? latestCheckin.data : {}, user.profile || {});
+    renderPainHeatmap(allCheckins);
 
     modal.classList.remove("hidden");
     document.body.style.overflow = "hidden";
@@ -257,14 +303,88 @@ async function openAthleteProfile(email) {
 
 function calculateAthleteStats(checkins) {
     if (checkins.length === 0) {
-        ["avgScore", "recoveryConsistency", "lowScoreFreq", "primaryConcern"].forEach(id => {
-            document.getElementById(id).textContent = "--";
+        ["avgScore", "recoveryConsistency", "lowScoreFreq", "acwrValue", "primaryConcern"].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = "--";
         });
         return;
     }
+
+    // 1. Average Score
     const avg = Math.round(checkins.reduce((s, c) => s + c.score, 0) / checkins.length);
     document.getElementById("avgScore").textContent = avg;
+
+    // 2. Low Score Frequency
     document.getElementById("lowScoreFreq").textContent = `${Math.round((checkins.filter(c => c.score < 60).length / checkins.length) * 100)}%`;
+
+    // 3. ACWR (Acute:Chronic Workload Ratio)
+    const now = new Date();
+    const oneDay = 1000 * 60 * 60 * 24;
+
+    const acuteWindow = 7;
+    const chronicWindow = 28;
+
+    const acuteLoads = checkins.filter(c => (now - new Date(c.timestamp)) / oneDay <= acuteWindow);
+    const chronicLoads = checkins.filter(c => (now - new Date(c.timestamp)) / oneDay <= chronicWindow);
+
+    // Sum of loads / window size
+    const acuteSum = acuteLoads.reduce((s, c) => s + (c.load || 0), 0);
+    const chronicSum = chronicLoads.reduce((s, c) => s + (c.load || 0), 0);
+
+    const acuteAvg = acuteSum / acuteWindow;
+    const chronicAvg = chronicSum / chronicWindow;
+
+    const acwr = chronicAvg > 0 ? (acuteAvg / chronicAvg).toFixed(2) : "0.00";
+
+    const acwrEl = document.getElementById("acwrValue");
+    if (acwrEl) {
+        acwrEl.textContent = acwr;
+        // Color coding for ACWR
+        if (acwr >= 1.5) {
+            acwrEl.style.color = "var(--score-poor)";
+            acwrEl.title = "High Risk: Danger Zone";
+        } else if (acwr >= 1.3) {
+            acwrEl.style.color = "var(--score-moderate)";
+            acwrEl.title = "Elevated Risk: Caution";
+        } else if (acwr >= 0.8) {
+            acwrEl.style.color = "var(--score-good)";
+            acwrEl.title = "Sweet Spot: Optimal Loading";
+        } else {
+            acwrEl.style.color = "var(--text-secondary)";
+            acwrEl.title = "Low Loading: Undertraining";
+        }
+    }
+
+    // 5. Primary Concern
+    const concernCounts = { Pain: 0, Sleep: 0, Fatigue: 0, Stress: 0 };
+    checkins.forEach(c => {
+        if (c.pain >= 6) concernCounts.Pain++;
+        if (c.sleep <= 2) concernCounts.Sleep++;
+        if (c.fatigue <= 1) concernCounts.Fatigue++;
+        if (c.stress >= 8) concernCounts.Stress++;
+    });
+
+    let topConcern = "None";
+    let maxCount = 0;
+    Object.entries(concernCounts).forEach(([name, count]) => {
+        if (count > maxCount) {
+            maxCount = count;
+            topConcern = name;
+        }
+    });
+
+    const concernEl = document.getElementById("primaryConcern");
+    if (concernEl) {
+        concernEl.textContent = topConcern;
+        if (topConcern !== "None") {
+            concernEl.className = "value concern-circle";
+            concernEl.style.marginTop = "8px";
+            concernEl.style.display = "inline-flex";
+        } else {
+            concernEl.className = "value";
+            concernEl.style.marginTop = "0";
+        }
+    }
 }
 
 function renderAthleteChart(checkins) {
@@ -275,10 +395,10 @@ function renderAthleteChart(checkins) {
         const c = checkins.find(check => check.date === d.toDateString());
         const score = c ? c.score : 0;
         const scoreClass = score >= 80 ? "good" : score >= 60 ? "moderate" : score > 0 ? "poor" : "";
-        
+
         const col = document.createElement("div");
         col.className = "chart-column";
-        col.innerHTML = `<div class="chart-bar-wrapper"><div class="chart-bar ${scoreClass}" style="height: ${score}%"></div></div><span class="chart-label">${d.toLocaleDateString('en', {weekday:'short'})}</span>`;
+        col.innerHTML = `<div class="chart-bar-wrapper"><div class="chart-bar ${scoreClass}" style="height: ${score}%"></div></div><span class="chart-label">${d.toLocaleDateString('en', { weekday: 'short' })}</span>`;
         container.appendChild(col);
     }
 }
@@ -294,6 +414,71 @@ function renderRisks(checkins) {
         badge.textContent = "Low Readiness Alert";
         container.appendChild(badge);
     }
+
+    // Check for Recurring Pain (same spot in 3 of last 5 check-ins)
+    const recentCheckins = checkins.slice(0, 5);
+    const painCounts = {};
+    recentCheckins.forEach(c => {
+        if (c.painLocations && Array.isArray(c.painLocations)) {
+            c.painLocations.forEach(loc => {
+                painCounts[loc] = (painCounts[loc] || 0) + 1;
+            });
+        }
+    });
+
+    Object.entries(painCounts).forEach(([loc, count]) => {
+        if (count >= 3) {
+            const badge = document.createElement("div");
+            badge.className = "risk-badge medium";
+            badge.textContent = `Persistent ${loc} Pain (${count} days)`;
+            container.appendChild(badge);
+        }
+    });
+}
+
+function renderPainHeatmap(checkins) {
+    const container = document.getElementById("painHeatmap");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    if (checkins.length === 0 || !checkins[0].data?.painLocations?.length) {
+        container.innerHTML = '<p class="empty-msg">No pain reported</p>';
+        return;
+    }
+
+    const latestPain = checkins[0].data.painLocations;
+    const listWrapper = document.createElement("div");
+    listWrapper.className = "pain-badge-list";
+    listWrapper.style.display = "flex";
+    listWrapper.style.flexWrap = "wrap";
+    listWrapper.style.gap = "10px";
+    listWrapper.style.marginTop = "10px";
+
+    latestPain.forEach(locEntry => {
+        const [loc, level] = locEntry.split(":");
+        const badge = document.createElement("div");
+        badge.className = "pain-badge";
+
+        // Color based on level if present
+        let badgeColor = "var(--green)";
+        if (level === "tight") badgeColor = "#f59e0b";
+        if (level === "sore") badgeColor = "#ef4444";
+        if (level === "severe") badgeColor = "#b91c1c";
+
+        badge.style.background = `${badgeColor}20`;
+        badge.style.color = badgeColor;
+        badge.style.border = `1px solid ${badgeColor}40`;
+        badge.style.padding = "6px 14px";
+        badge.style.borderRadius = "20px";
+        badge.style.fontSize = "0.85rem";
+        badge.style.fontWeight = "600";
+        badge.textContent = loc + (level ? ` (${level})` : "");
+
+        listWrapper.appendChild(badge);
+    });
+
+    container.appendChild(listWrapper);
 }
 
 // ================= RECOMMENDATIONS =================
@@ -389,6 +574,29 @@ saveNotesBtn.addEventListener("click", async () => {
 });
 
 function escapeHtml(t) { const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
-function showToast(m, t="success") { toast.textContent = m; toast.className = `toast ${t} show`; setTimeout(() => toast.classList.remove("show"), 3000); }
+function showToast(m, t = "success") { toast.textContent = m; toast.className = `toast ${t} show`; setTimeout(() => toast.classList.remove("show"), 3000); }
 refreshBtn.addEventListener("click", loadTeamData);
 window.openAthleteProfile = openAthleteProfile;
+
+// ================= AUTO LOGOUT ON INACTIVITY =================
+let idleTime = 0;
+const MAX_IDLE_MINUTES = 10;
+
+function resetIdleTimer() {
+    idleTime = 0;
+}
+
+const idleInterval = setInterval(() => {
+    idleTime++;
+    if (idleTime >= MAX_IDLE_MINUTES) {
+        clearInterval(idleInterval);
+        localStorage.removeItem("token");
+        localStorage.removeItem("currentUser");
+        alert("Session expired due to inactivity. Please log in again to protect athlete records.");
+        window.location.href = "trainer-login.html";
+    }
+}, 60000);
+
+["mousemove", "keypress", "click", "scroll", "touchstart"].forEach(event => {
+    document.addEventListener(event, resetIdleTimer, true);
+});
