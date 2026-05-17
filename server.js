@@ -119,6 +119,15 @@ startServer();
 app.use(cors());
 app.use(express.json());
 
+// Native Security Headers Middleware
+app.use((req, res, next) => {
+    res.setHeader("X-Frame-Options", "DENY");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-XSS-Protection", "1; mode=block");
+    res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    next();
+});
+
 // ================= EMAIL SETUP =================
 const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -140,6 +149,15 @@ const authenticateToken = (req, res, next) => {
         req.user = user;
         next();
     });
+};
+
+const requireRole = (role) => {
+    return (req, res, next) => {
+        if (!req.user || req.user.role !== role) {
+            return res.status(403).json({ error: "Access denied. Insufficient permissions." });
+        }
+        next();
+    };
 };
 
 // ================= API ROUTES =================
@@ -239,7 +257,7 @@ app.get("/api/checkins", authenticateToken, async (req, res) => {
 });
 
 // TRAINER: Team Data
-app.get("/api/trainer/team", authenticateToken, async (req, res) => {
+app.get("/api/trainer/team", authenticateToken, requireRole("trainer"), async (req, res) => {
     try {
         // Look up the trainer's own accessCode so we dynamically filter the right team
         const trainer = await db.get("SELECT accessCode FROM users WHERE email = ?", [req.user.email]);
@@ -267,6 +285,29 @@ app.get("/api/trainer/team", authenticateToken, async (req, res) => {
         res.json(athletes);
     } catch (err) {
         res.status(500).json({ error: "Failed to fetch team data" });
+    }
+});
+
+// TRAINER NOTES: Get notes for an athlete
+app.get("/api/trainer/notes/:athleteEmail", authenticateToken, requireRole("trainer"), async (req, res) => {
+    const { athleteEmail } = req.params;
+    try {
+        const rows = await db.all("SELECT notes, timestamp FROM trainer_notes WHERE athleteEmail = ? ORDER BY timestamp DESC", [athleteEmail]);
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to fetch trainer notes" });
+    }
+});
+
+// TRAINER NOTES: Save notes for an athlete
+app.post("/api/trainer/notes", authenticateToken, requireRole("trainer"), async (req, res) => {
+    const { athleteEmail, notes } = req.body;
+    try {
+        await db.run("DELETE FROM trainer_notes WHERE athleteEmail = ?", [athleteEmail]);
+        await db.run("INSERT INTO trainer_notes (athleteEmail, notes) VALUES (?, ?)", [athleteEmail, notes]);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to save trainer notes" });
     }
 });
 
