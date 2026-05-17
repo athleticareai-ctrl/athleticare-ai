@@ -1,12 +1,15 @@
 // ================= AUTH GUARD =================
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-if (!currentUser) {
+if (!currentUser || currentUser.role !== "athlete") {
+    localStorage.removeItem("token");
+    localStorage.removeItem("currentUser");
     window.location.href = "login1.html";
 }
 
 // ================= STORAGE KEYS =================
 const CHECKIN_KEY = `checkin_${currentUser.email}`;
+
 
 // ================= DOM ELEMENTS =================
 const checkInForm = document.getElementById("checkInForm");
@@ -80,6 +83,12 @@ function showCompletedState(data) {
     if (document.getElementById("energyValue")) document.getElementById("energyValue").textContent = `${data.pain}/10`;
     if (document.getElementById("stressValue")) document.getElementById("stressValue").textContent = `${data.stress}/10`;
 
+    // Show Pain Heatmap
+    const completedMapContainer = document.getElementById("completedBodyMap");
+    if (completedMapContainer) {
+        renderBodyMapHeatmap(data.painLocations || [], completedMapContainer, "completedBodyMapCallouts");
+    }
+
     // Show check-in time
     const time = new Date(data.timestamp).toLocaleTimeString('en-US', {
         hour: 'numeric',
@@ -111,6 +120,11 @@ if (checkInForm) {
             timestamp: new Date().toISOString()
         };
 
+        // Capture Pain Locations
+        const selectedButtons = Array.from(document.querySelectorAll(".area-btn.selected"));
+        const selectedAreas = selectedButtons.map(btn => btn.dataset.area);
+        data.painLocations = selectedAreas;
+
         // Calculate score
         const score = calculateScore(data);
         data.score = score;
@@ -126,6 +140,71 @@ if (checkInForm) {
     });
 }
 
+// Pain Area Selection Logic (Reverted to Buttons)
+document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("area-btn")) {
+        e.target.classList.toggle("selected");
+        updatePainLocationsInput();
+    }
+});
+
+function updatePainLocationsInput() {
+    const selectedButtons = Array.from(document.querySelectorAll(".area-btn.selected"));
+    const selectedAreas = selectedButtons.map(btn => btn.dataset.area);
+
+    // Update Hidden Input
+    const input = document.getElementById("painLocationsInput");
+    if (input) {
+        input.value = selectedAreas.join(",");
+    }
+
+    // Update Live Summary
+    const summaryContainer = document.getElementById("selectedSummary");
+    if (summaryContainer) {
+        summaryContainer.innerHTML = "";
+        selectedAreas.forEach(area => {
+            const badge = document.createElement("span");
+            badge.className = "summary-badge";
+            badge.innerHTML = `<span>${area}</span>`;
+            summaryContainer.appendChild(badge);
+        });
+    }
+}
+
+function renderBodyMapHeatmap(locations, container, calloutId) {
+    if (!container) return;
+
+    // Clear and render as a list of badges instead of a map
+    container.innerHTML = "";
+    const wrapper = document.createElement("div");
+    wrapper.className = "selected-areas-list";
+    wrapper.style.display = "flex";
+    wrapper.style.flexWrap = "wrap";
+    wrapper.style.gap = "8px";
+    wrapper.style.padding = "10px 0";
+
+    if (!locations || locations.length === 0) {
+        container.innerHTML = '<p class="text-secondary" style="font-size: 0.9rem;">No pain reported</p>';
+        return;
+    }
+
+    locations.forEach(locEntry => {
+        // Handle both "Area" and "Area:Level" formats for backward compatibility
+        const area = locEntry.split(":")[0];
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.style.background = "rgba(0, 210, 106, 0.1)";
+        badge.style.color = "var(--green)";
+        badge.style.padding = "4px 12px";
+        badge.style.borderRadius = "6px";
+        badge.style.fontSize = "0.85rem";
+        badge.style.border = "1px solid rgba(0, 210, 106, 0.2)";
+        badge.textContent = area;
+        wrapper.appendChild(badge);
+    });
+
+    container.appendChild(wrapper);
+}
 // ================= SAVE CHECK-IN =================
 async function saveCheckIn(data) {
     try {
@@ -159,11 +238,11 @@ function calculateScore(data) {
 function updateScoreDisplay(score) {
     if (scoreNumber) scoreNumber.textContent = score;
     if (scoreStatus) scoreStatus.innerHTML = `<span class="status-label">${score >= 80 ? 'Ready' : score >= 60 ? 'Monitor' : 'Recovery'}</span>`;
-    
+
     let category = score >= 80 ? "good" : score >= 60 ? "moderate" : "poor";
     const circle = scoreDisplay.querySelector(".circle");
     if (circle) circle.style.strokeDasharray = `${score}, 100`;
-    
+
     const scoreCircle = scoreDisplay.querySelector(".score-circle");
     if (scoreCircle) scoreCircle.className = `score-circle ${category}`;
 }
@@ -213,7 +292,7 @@ function showRecommendations(score, data) {
 
     const profile = currentUser.profile || {};
     const sport = profile.sport?.toLowerCase() || "";
-    
+
     const generalTips = [];
     if (score >= 80) {
         generalTips.push({ title: "Green Light", text: "You are in an optimal state for training.", type: "success" });
@@ -267,12 +346,12 @@ function renderTrendsChart(checkins) {
     recent.forEach(c => {
         const date = new Date(c.timestamp);
         const day = date.toLocaleDateString('en-US', { weekday: 'short' });
-        
+
         const bar = document.createElement("div");
         bar.className = "chart-bar";
-        
+
         const scoreClass = c.score >= 80 ? "good" : c.score >= 60 ? "moderate" : "poor";
-        
+
         bar.innerHTML = `
             <div class="bar-value">${c.score}</div>
             <div class="bar-fill ${scoreClass}" style="height: ${c.score}%"></div>
@@ -329,3 +408,76 @@ function renderAnalytics(checkins) {
         tbody.appendChild(row);
     });
 }
+
+// ================= PROFILE MODAL =================
+const profileModal = document.getElementById("profileModal");
+const profileBtn = document.getElementById("profileBtn");
+const closeProfileBtn = document.getElementById("closeProfileBtn");
+const profileForm = document.getElementById("profileForm");
+
+if (profileBtn) {
+    profileBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const user = JSON.parse(localStorage.getItem("currentUser"));
+        if (user && user.profile) {
+            const sportSelect = document.getElementById("profileSport");
+            const gradeSelect = document.getElementById("profileGrade");
+            if (sportSelect) sportSelect.value = user.profile.sport || "";
+            if (gradeSelect) gradeSelect.value = user.profile.grade || "";
+        }
+        if (profileModal) profileModal.classList.remove("hidden");
+    });
+}
+
+if (closeProfileBtn) {
+    closeProfileBtn.addEventListener("click", () => {
+        if (profileModal) profileModal.classList.add("hidden");
+    });
+}
+
+if (profileForm) {
+    profileForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const sport = document.getElementById("profileSport").value;
+        const grade = document.getElementById("profileGrade").value;
+
+        try {
+            await api.post("/profile", { profile: { sport, grade } });
+            const user = JSON.parse(localStorage.getItem("currentUser"));
+            user.profile = { ...user.profile, sport, grade };
+            localStorage.setItem("currentUser", JSON.stringify(user));
+            
+            showToast("Profile updated successfully!");
+            if (profileModal) profileModal.classList.add("hidden");
+            
+            // Refresh dashboard
+            loadDashboardData();
+        } catch (err) {
+            console.error("Profile update failed:", err);
+            showToast("Failed to update profile", "error");
+        }
+    });
+}
+
+// ================= AUTO LOGOUT ON INACTIVITY =================
+let idleTime = 0;
+const MAX_IDLE_MINUTES = 10;
+
+function resetIdleTimer() {
+    idleTime = 0;
+}
+
+const idleInterval = setInterval(() => {
+    idleTime++;
+    if (idleTime >= MAX_IDLE_MINUTES) {
+        clearInterval(idleInterval);
+        localStorage.removeItem("token");
+        localStorage.removeItem("currentUser");
+        alert("Session expired due to inactivity. Please log in again to protect your records.");
+        window.location.href = "login1.html";
+    }
+}, 60000);
+
+["mousemove", "keypress", "click", "scroll", "touchstart"].forEach(event => {
+    document.addEventListener(event, resetIdleTimer, true);
+});
