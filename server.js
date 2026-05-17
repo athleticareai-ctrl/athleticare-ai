@@ -7,8 +7,7 @@ import nodemailer from "nodemailer";
 import path from "path";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+import pg from 'pg';
 
 dotenv.config();
 
@@ -17,98 +16,24 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || "athleticare-secret-key";
 
 // ================= DATABASE SETUP =================
-let db;
-const dbPath = path.join(path.resolve(), 'athleticare.db');
-
-async function initDb() {
-    const database = await open({
-        filename: dbPath,
-        driver: sqlite3.Database
-    });
-
-    // Users Table
-    await database.exec(`
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            firstname TEXT NOT NULL,
-            lastname TEXT,
-            accessCode TEXT,
-            onboardingComplete INTEGER DEFAULT 0,
-            profile TEXT,
-            role TEXT DEFAULT 'athlete'
-        )
-    `);
-
-    // Check-ins Table
-    await database.exec(`
-        CREATE TABLE IF NOT EXISTS checkins (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            userEmail TEXT NOT NULL,
-            date TEXT NOT NULL,
-            score INTEGER NOT NULL,
-            data TEXT NOT NULL,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(userEmail) REFERENCES users(email)
-        )
-    `);
-
-    // Trainer Notes Table
-    await database.exec(`
-        CREATE TABLE IF NOT EXISTS trainer_notes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            athleteEmail TEXT NOT NULL,
-            notes TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(athleteEmail) REFERENCES users(email)
-        )
-    `);
-
-    // Schedules Table
-    await database.exec(`
-        CREATE TABLE IF NOT EXISTS schedules (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            userEmail TEXT NOT NULL,
-            data TEXT NOT NULL,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(userEmail) REFERENCES users(email)
-        )
-    `);
-
-    // Chats Table
-    await database.exec(`
-        CREATE TABLE IF NOT EXISTS chats (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            userEmail TEXT NOT NULL,
-            data TEXT NOT NULL,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(userEmail) REFERENCES users(email)
-        )
-    `);
-
-    // Seed Trainer if not exists
-    const trainer = await database.get("SELECT * FROM users WHERE email = ?", ["trainer@school.edu"]);
-    if (!trainer) {
-        const hashedPass = await bcrypt.hash("athleticare", 10);
-        await database.run(
-            "INSERT INTO users (email, password, firstname, lastname, role, accessCode) VALUES (?, ?, ?, ?, ?, ?)",
-            ["trainer@school.edu", hashedPass, "Head", "Trainer", "trainer", "WEYMOUTH"]
-        );
-    }
-
-    return database;
-}
+const { Pool } = pg;
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes("supabase.co")
+        ? { rejectUnauthorized: false }
+        : false
+});
 
 const startServer = async () => {
     try {
-        db = await initDb();
-        console.log("Database initialized ✅");
+        // Test database connection
+        await pool.query("SELECT NOW()");
+        console.log("PostgreSQL Database connected successfully ✅");
         app.listen(PORT, () => {
             console.log(`Server running at http://localhost:${PORT} ✅`);
         });
     } catch (err) {
-        console.error("Failed to initialize database ❌", err);
+        console.error("Failed to initialize database connection ❌", err);
         process.exit(1);
     }
 };
@@ -170,20 +95,19 @@ const groq = new Groq({
 // AUTH: Signup
 app.post("/api/auth/signup", async (req, res) => {
     const { email, password, firstname, lastname, accessCode } = req.body;
-    // Non-affiliated users (no access code) skip onboarding
     const isAffiliated = accessCode && accessCode.trim().length > 0;
     const onboardingComplete = isAffiliated ? 0 : 1;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        await db.run(
-            "INSERT INTO users (email, password, firstname, lastname, accessCode, onboardingComplete) VALUES (?, ?, ?, ?, ?, ?)",
+        await pool.query(
+            'INSERT INTO users (email, password, firstname, lastname, "accessCode", "onboardingComplete") VALUES ($1, $2, $3, $4, $5, $6)',
             [email, hashedPassword, firstname, lastname, accessCode || null, onboardingComplete]
         );
         const token = jwt.sign({ email, role: 'athlete' }, JWT_SECRET, { expiresIn: '24h' });
         const user = { email, firstname, lastname, role: 'athlete', onboardingComplete, profile: null };
         res.status(201).json({ success: true, token, user });
     } catch (err) {
-        if (err.message.includes("UNIQUE")) return res.status(400).json({ error: "Email already exists" });
+        if (err.message && err.message.includes("unique")) return res.status(400).json({ error: "Email already exists" });
         res.status(500).json({ error: "Signup failed" });
     }
 });
@@ -195,15 +119,15 @@ app.post("/api/auth/trainer/signup", async (req, res) => {
     if (adminCode !== STAFF_CODE) return res.status(403).json({ error: "Invalid School Admin Code" });
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        await db.run(
-            "INSERT INTO users (email, password, firstname, lastname, role, accessCode, onboardingComplete) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        await pool.query(
+            'INSERT INTO users (email, password, firstname, lastname, role, "accessCode", "onboardingComplete") VALUES ($1, $2, $3, $4, $5, $6, $7)',
             [email, hashedPassword, firstname, lastname, "trainer", "WEYMOUTH", 1]
         );
         const token = jwt.sign({ email, role: 'trainer' }, JWT_SECRET, { expiresIn: '24h' });
         const user = { email, firstname, lastname, role: 'trainer', onboardingComplete: 1 };
         res.status(201).json({ success: true, token, user });
     } catch (err) {
-        if (err.message.includes("UNIQUE")) return res.status(400).json({ error: "Email already exists" });
+        if (err.message && err.message.includes("unique")) return res.status(400).json({ error: "Email already exists" });
         res.status(500).json({ error: "Trainer signup failed" });
     }
 });
@@ -212,13 +136,14 @@ app.post("/api/auth/trainer/signup", async (req, res) => {
 app.post("/api/auth/login", async (req, res) => {
     const { email, password } = req.body;
     try {
-        const user = await db.get("SELECT * FROM users WHERE email = ?", [email]);
+        const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+        const user = result.rows[0];
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ error: "Invalid email or password" });
         }
         const token = jwt.sign({ email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
         const { password: _, ...userWithoutPassword } = user;
-        userWithoutPassword.profile = JSON.parse(user.profile || "null");
+        userWithoutPassword.profile = typeof user.profile === 'string' ? JSON.parse(user.profile || "null") : (user.profile || null);
         res.json({ token, user: userWithoutPassword });
     } catch (err) {
         res.status(500).json({ error: "Login failed" });
@@ -229,7 +154,7 @@ app.post("/api/auth/login", async (req, res) => {
 app.post("/api/profile", authenticateToken, async (req, res) => {
     const { profile } = req.body;
     try {
-        await db.run("UPDATE users SET profile = ?, onboardingComplete = 1 WHERE email = ?", [JSON.stringify(profile), req.user.email]);
+        await pool.query('UPDATE users SET profile = $1, "onboardingComplete" = 1 WHERE email = $2', [JSON.stringify(profile), req.user.email]);
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: "Profile update failed" });
@@ -240,7 +165,7 @@ app.post("/api/profile", authenticateToken, async (req, res) => {
 app.post("/api/checkin", authenticateToken, async (req, res) => {
     const { score, data, date } = req.body;
     try {
-        await db.run("INSERT INTO checkins (userEmail, date, score, data) VALUES (?, ?, ?, ?)", [req.user.email, date, score, JSON.stringify(data)]);
+        await pool.query('INSERT INTO checkins ("userEmail", date, score, data) VALUES ($1, $2, $3, $4)', [req.user.email, date, score, JSON.stringify(data)]);
         res.status(201).json({ success: true });
     } catch (err) {
         res.status(500).json({ error: "Check-in failed" });
@@ -249,8 +174,8 @@ app.post("/api/checkin", authenticateToken, async (req, res) => {
 
 app.get("/api/checkins", authenticateToken, async (req, res) => {
     try {
-        const rows = await db.all("SELECT * FROM checkins WHERE userEmail = ? ORDER BY timestamp DESC", [req.user.email]);
-        res.json(rows.map(r => ({ ...r, data: JSON.parse(r.data) })));
+        const result = await pool.query('SELECT * FROM checkins WHERE "userEmail" = $1 ORDER BY timestamp DESC', [req.user.email]);
+        res.json(result.rows.map(r => ({ ...r, data: typeof r.data === 'string' ? JSON.parse(r.data) : (r.data || {}) })));
     } catch (err) {
         res.status(500).json({ error: "Failed to fetch check-ins" });
     }
@@ -259,26 +184,32 @@ app.get("/api/checkins", authenticateToken, async (req, res) => {
 // TRAINER: Team Data
 app.get("/api/trainer/team", authenticateToken, requireRole("trainer"), async (req, res) => {
     try {
-        // Look up the trainer's own accessCode so we dynamically filter the right team
-        const trainer = await db.get("SELECT accessCode FROM users WHERE email = ?", [req.user.email]);
+        const trainerResult = await pool.query('SELECT "accessCode" FROM users WHERE email = $1', [req.user.email]);
+        const trainer = trainerResult.rows[0];
         const teamCode = trainer?.accessCode || "WEYMOUTH";
 
-        const users = await db.all(
-            "SELECT email, firstname, lastname, accessCode, onboardingComplete, profile FROM users WHERE accessCode = ? AND role = 'athlete'",
+        const usersResult = await pool.query(
+            'SELECT email, firstname, lastname, "accessCode", "onboardingComplete", profile FROM users WHERE "accessCode" = $1 AND role = \'athlete\'',
             [teamCode]
         );
+        const users = usersResult.rows;
 
         const athletes = [];
         for (const user of users) {
-            // Return ALL check-ins for each athlete (not just the last one)
-            const checkins = await db.all(
-                "SELECT score, date, data, timestamp FROM checkins WHERE userEmail = ? ORDER BY timestamp DESC",
+            const checkinsResult = await pool.query(
+                'SELECT score, date, data, timestamp FROM checkins WHERE "userEmail" = $1 ORDER BY timestamp DESC',
                 [user.email]
             );
-            const parsedCheckins = checkins.map(c => ({ ...c, data: JSON.parse(c.data) }));
+            const parsedCheckins = checkinsResult.rows.map(c => ({
+                ...c,
+                data: typeof c.data === 'string' ? JSON.parse(c.data) : (c.data || {})
+            }));
 
             athletes.push({
-                user: { ...user, profile: JSON.parse(user.profile || "{}") },
+                user: {
+                    ...user,
+                    profile: typeof user.profile === 'string' ? JSON.parse(user.profile || "{}") : (user.profile || {})
+                },
                 checkins: parsedCheckins
             });
         }
@@ -292,8 +223,8 @@ app.get("/api/trainer/team", authenticateToken, requireRole("trainer"), async (r
 app.get("/api/trainer/notes/:athleteEmail", authenticateToken, requireRole("trainer"), async (req, res) => {
     const { athleteEmail } = req.params;
     try {
-        const rows = await db.all("SELECT notes, timestamp FROM trainer_notes WHERE athleteEmail = ? ORDER BY timestamp DESC", [athleteEmail]);
-        res.json(rows);
+        const result = await pool.query('SELECT notes, timestamp FROM trainer_notes WHERE "athleteEmail" = $1 ORDER BY timestamp DESC', [athleteEmail]);
+        res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: "Failed to fetch trainer notes" });
     }
@@ -303,8 +234,8 @@ app.get("/api/trainer/notes/:athleteEmail", authenticateToken, requireRole("trai
 app.post("/api/trainer/notes", authenticateToken, requireRole("trainer"), async (req, res) => {
     const { athleteEmail, notes } = req.body;
     try {
-        await db.run("DELETE FROM trainer_notes WHERE athleteEmail = ?", [athleteEmail]);
-        await db.run("INSERT INTO trainer_notes (athleteEmail, notes) VALUES (?, ?)", [athleteEmail, notes]);
+        await pool.query('DELETE FROM trainer_notes WHERE "athleteEmail" = $1', [athleteEmail]);
+        await pool.query('INSERT INTO trainer_notes ("athleteEmail", notes) VALUES ($1, $2)', [athleteEmail, notes]);
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: "Failed to save trainer notes" });
@@ -315,8 +246,8 @@ app.post("/api/trainer/notes", authenticateToken, requireRole("trainer"), async 
 app.post("/api/chats", authenticateToken, async (req, res) => {
     const { chats } = req.body;
     try {
-        await db.run("DELETE FROM chats WHERE userEmail = ?", [req.user.email]);
-        await db.run("INSERT INTO chats (userEmail, data) VALUES (?, ?)", [req.user.email, JSON.stringify(chats)]);
+        await pool.query('DELETE FROM chats WHERE "userEmail" = $1', [req.user.email]);
+        await pool.query('INSERT INTO chats ("userEmail", data) VALUES ($1, $2)', [req.user.email, JSON.stringify(chats)]);
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: "Failed to save chats" });
@@ -325,8 +256,9 @@ app.post("/api/chats", authenticateToken, async (req, res) => {
 
 app.get("/api/chats", authenticateToken, async (req, res) => {
     try {
-        const row = await db.get("SELECT data FROM chats WHERE userEmail = ?", [req.user.email]);
-        res.json(row ? JSON.parse(row.data) : []);
+        const result = await pool.query('SELECT data FROM chats WHERE "userEmail" = $1', [req.user.email]);
+        const row = result.rows[0];
+        res.json(row ? (typeof row.data === 'string' ? JSON.parse(row.data) : row.data) : []);
     } catch (err) {
         res.status(500).json({ error: "Failed to fetch chats" });
     }
