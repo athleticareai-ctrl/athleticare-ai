@@ -92,7 +92,7 @@ const requireRole = (role) => {
 
 // AI SETUP
 const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY,
+    apiKey: process.env.GROQ_API_KEY || "dummy_groq_key_to_prevent_vercel_startup_crash",
 });
 
 // AUTH: Signup
