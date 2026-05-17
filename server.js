@@ -24,21 +24,24 @@ const pool = new Pool({
         : false
 });
 
-const startServer = async () => {
+// Test database connection
+const testDbConnection = async () => {
     try {
-        // Test database connection
         await pool.query("SELECT NOW()");
         console.log("PostgreSQL Database connected successfully ✅");
-        app.listen(PORT, () => {
-            console.log(`Server running at http://localhost:${PORT} ✅`);
-        });
     } catch (err) {
-        console.error("Failed to initialize database connection ❌", err);
-        process.exit(1);
+        console.error("Failed to initialize database connection ❌", err.message);
     }
 };
 
-startServer();
+testDbConnection();
+
+// Only listen locally (avoid blocking serverless environments like Vercel)
+if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`Server running locally at http://localhost:${PORT} ✅`);
+    });
+}
 
 // ================= MIDDLEWARE =================
 app.use(cors());
@@ -282,3 +285,5 @@ app.post("/chat", authenticateToken, async (req, res) => {
 app.all("/api/*", (req, res) => res.status(404).json({ error: "Route not found" }));
 app.use(express.static("public"));
 app.get("*", (req, res) => res.sendFile(path.join(path.resolve(), "public", "index.html")));
+
+export default app;
