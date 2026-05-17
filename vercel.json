@@ -16,36 +16,11 @@
       "dest": "server.js"
     },
     {
-      "src": "/css/(.*)",
-      "dest": "/public/css/$1"
-    },
-    {
-      "src": "/js/(.*)",
-      "dest": "/public/js/$1"
-    },
-    {
-      "src": "/onboarding",
-      "dest": "/public/onboarding.html"
-    },
-    {
-      "src": "/dashboard",
-      "dest": "/public/dashboard.html"
-    },
-    {
-      "src": "/team-dashboard",
-      "dest": "/public/team-dashboard.html"
-    },
-    {
-      "src": "/login",
-      "dest": "/public/index.html"
-    },
-    {
-      "src": "/(.*).html",
-      "dest": "/public/$1.html"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/public/index.html"
+      "dest": "/public/$1"
     }
   ]
 }
