@@ -20,9 +20,10 @@
     <nav class="navbar">
         <div class="nav-logo">AthletiCare<span>AI</span></div>
         <div class="nav-links">
-            <a href=" index.html">Chatbot</a>
+            <a href="index.html">Chatbot</a>
             <a href="dashboard.html" class="active">Dashboard</a>
             <a href="schedule.html">Scheduling</a>
+            <a href="#" id="profileBtn">Profile</a>
             <a href="#" id="logoutBtn">Logout</a>
         </div>
         <div class="nav-toggle">
@@ -109,6 +110,22 @@
                         <div class="metric-value" id="stressValue">--</div>
                     </div>
                 </div>
+                <div id="completedState" class="completed-state hidden">
+                    <div class="success-card">
+                        <div class="success-header">
+                            <div class="success-icon">✓</div>
+                            <h3>Daily Check-In Complete</h3>
+                            <p id="checkInTime">Completed at --:--</p>
+                        </div>
+                        <div class="reported-summary" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                            <span class="metric-label" style="margin-bottom: 12px; display: block;">Reported Pain Areas</span>
+                            <div id="completedBodyMap" class="pain-list-container">
+                                <!-- JS will render list of badges here -->
+                                <p class="empty-msg">No pain reported</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -135,6 +152,51 @@
                             </div>
                             <span class="slider-value" id="painDisplay">0</span>
                         </div>
+                    </div>
+
+                    <!-- Body Map / Pain Location -->
+                    <div class="form-group" id="bodyMapGroup">
+                        <label>
+                            <span class="label-text">Pain Location</span>
+                            <span class="label-sub">Select areas where you feel pain</span>
+                        </label>
+                    <div class="pain-area-selector">
+                        <div class="area-grid" id="areaGrid">
+                            <!-- Anterior Areas -->
+                            <div class="area-group">
+                                <h3>Anterior (Front)</h3>
+                                <div class="area-buttons">
+                                    <button type="button" class="area-btn" data-area="Head">Head</button>
+                                    <button type="button" class="area-btn" data-area="Neck">Neck</button>
+                                    <button type="button" class="area-btn" data-area="Shoulders">Shoulders</button>
+                                    <button type="button" class="area-btn" data-area="Chest">Chest</button>
+                                    <button type="button" class="area-btn" data-area="Abs">Abs</button>
+                                    <button type="button" class="area-btn" data-area="Biceps">Biceps</button>
+                                    <button type="button" class="area-btn" data-area="Forearms">Forearms</button>
+                                    <button type="button" class="area-btn" data-area="Hip Flexors">Hip Flexors</button>
+                                    <button type="button" class="area-btn" data-area="Quads">Quads</button>
+                                    <button type="button" class="area-btn" data-area="Knees">Knees</button>
+                                    <button type="button" class="area-btn" data-area="Shins">Shins</button>
+                                    <button type="button" class="area-btn" data-area="Feet">Feet</button>
+                                </div>
+                            </div>
+                            <!-- Posterior Areas -->
+                            <div class="area-group">
+                                <h3>Posterior (Back)</h3>
+                                <div class="area-buttons">
+                                    <button type="button" class="area-btn" data-area="Upper Back">Upper Back</button>
+                                    <button type="button" class="area-btn" data-area="Lower Back">Lower Back</button>
+                                    <button type="button" class="area-btn" data-area="Glutes">Glutes</button>
+                                    <button type="button" class="area-btn" data-area="Hamstrings">Hamstrings</button>
+                                    <button type="button" class="area-btn" data-area="Calves">Calves</button>
+                                    <button type="button" class="area-btn" data-area="Achilles">Achilles</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="selected-summary" id="selectedSummary" style="margin-top: 16px; min-height: 20px;">
+                            <!-- Live list of selected areas will appear here -->
+                        </div>
+                        <input type="hidden" name="painLocations" id="painLocationsInput" value="" />
                     </div>
 
                     <!-- Mobility -->
@@ -386,6 +448,46 @@
 
     <!-- Toast Notification -->
     <div id="toast" class="toast hidden"></div>
+
+    <!-- ================= PROFILE MODAL ================= -->
+    <div id="profileModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Profile Settings</h2>
+                <button class="close-btn" id="closeProfileBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label for="profileSport">Primary Sport</label>
+                        <select id="profileSport" class="form-control" required>
+                            <option value="Baseball">Baseball</option>
+                            <option value="Girls Golf">Girls' Golf</option>
+                            <option value="Boys Lacrosse">Boys' Lacrosse</option>
+                            <option value="Girls Lacrosse">Girls' Lacrosse</option>
+                            <option value="Boys Rugby">Boys' Rugby</option>
+                            <option value="Girls Rugby">Girls' Rugby</option>
+                            <option value="Softball">Softball</option>
+                            <option value="Tennis">Tennis</option>
+                            <option value="Track & Field">Outdoor Track & Field</option>
+                            <option value="Boys Volleyball">Boys' Volleyball</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label for="profileGrade">Grade / Year</label>
+                        <select id="profileGrade" class="form-control" required>
+                            <option value="Freshman">Freshman</option>
+                            <option value="Sophomore">Sophomore</option>
+                            <option value="Junior">Junior</option>
+                            <option value="Senior">Senior</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn" style="margin-top: 24px; width: 100%;">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script src="js/api.js"></script>
     <script src="js/dashboard.js"></script>
