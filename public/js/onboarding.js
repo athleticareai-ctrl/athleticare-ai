@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const profile = {
             sport: document.getElementById("sport").value,
+            sport2: document.getElementById("sport2").value || "",
+            sport3: document.getElementById("sport3").value || "",
             grade: document.getElementById("grade").value,
             age: document.getElementById("age").value,
             position: document.getElementById("position").value,
