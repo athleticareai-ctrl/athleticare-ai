@@ -59,7 +59,11 @@ function filterDataBySport(sport) {
     } else {
         filteredData = teamData.filter(athlete => {
             const athleteSport = (athlete.user.profile?.sport || "").toLowerCase();
-            return athleteSport === sport.toLowerCase();
+            const athleteSport2 = (athlete.user.profile?.sport2 || "").toLowerCase();
+            const athleteSport3 = (athlete.user.profile?.sport3 || "").toLowerCase();
+            return athleteSport === sport.toLowerCase() || 
+                   athleteSport2 === sport.toLowerCase() || 
+                   athleteSport3 === sport.toLowerCase();
         });
     }
 
@@ -206,6 +210,12 @@ function renderTable(data) {
 
         const initial = user.firstname.charAt(0).toUpperCase();
         const sport = user.profile?.sport || "General";
+        const sport2 = user.profile?.sport2 || "";
+        const sport3 = user.profile?.sport3 || "";
+
+        let sportBadges = `<span class="sport-badge">${escapeHtml(sport)}</span>`;
+        if (sport2) sportBadges += ` <span class="sport-badge secondary" style="background: rgba(255,255,255,0.05); color: var(--text-secondary); border-color: rgba(255,255,255,0.1); margin-left: 4px; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; border: 1px solid;">${escapeHtml(sport2)}</span>`;
+        if (sport3) sportBadges += ` <span class="sport-badge tertiary" style="background: rgba(255,255,255,0.05); color: var(--text-secondary); border-color: rgba(255,255,255,0.1); margin-left: 4px; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; border: 1px solid;">${escapeHtml(sport3)}</span>`;
 
         return `
             <tr onclick="openAthleteProfile('${user.email}')">
@@ -218,7 +228,7 @@ function renderTable(data) {
                         </div>
                     </div>
                 </td>
-                <td><span class="sport-badge">${escapeHtml(sport)}</span></td>
+                <td>${sportBadges}</td>
                 <td><span class="score-cell ${scoreClass}">${scoreDisplay}</span></td>
                 <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                 <td><span class="trend-cell">${calculateTrend(today, yesterday)}</span></td>
@@ -279,7 +289,10 @@ async function openAthleteProfile(email) {
 
     // Set UI
     document.getElementById("modalAthleteName").textContent = user.firstname;
-    document.getElementById("modalAthleteSport").textContent = `${user.profile?.sport || "Sport"}`;
+    let sportsText = user.profile?.sport || "Sport";
+    if (user.profile?.sport2) sportsText += ` / ${user.profile.sport2}`;
+    if (user.profile?.sport3) sportsText += ` / ${user.profile.sport3}`;
+    document.getElementById("modalAthleteSport").textContent = sportsText;
     document.getElementById("modalAvatar").textContent = user.firstname.charAt(0).toUpperCase();
 
     document.getElementById("infoGrade").textContent = user.profile?.grade || "--";
