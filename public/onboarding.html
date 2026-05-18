@@ -17,26 +17,29 @@
 
     <div class="onboarding-container">
         <div class="onboarding-card">
-            
+
             <header class="onboarding-header">
                 <h1>Welcome to AthletiCare</h1>
                 <p>Let's personalize your recovery experience.</p>
             </header>
 
             <form id="onboardingForm">
-                
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="sport">Primary Sport</label>
                         <select id="sport" class="form-control" required>
                             <option value="">Select a sport...</option>
-                            <option value="Football">Football</option>
-                            <option value="Basketball">Basketball</option>
-                            <option value="Soccer">Soccer</option>
-                            <option value="Track & Field">Track & Field</option>
-                            <option value="Cross Country">Cross Country</option>
                             <option value="Baseball">Baseball</option>
-                            <option value="Volleyball">Volleyball</option>
+                            <option value="Girls Golf">Girls' Golf</option>
+                            <option value="Boys Lacrosse">Boys' Lacrosse</option>
+                            <option value="Girls Lacrosse">Girls' Lacrosse</option>
+                            <option value="Boys Rugby">Boys' Rugby</option>
+                            <option value="Girls Rugby">Girls' Rugby</option>
+                            <option value="Softball">Softball</option>
+                            <option value="Tennis">Tennis</option>
+                            <option value="Track & Field">Outdoor Track & Field</option>
+                            <option value="Boys Volleyball">Boys' Volleyball</option>
                             <option value="Other">Other</option>
                         </select>
                     </div>
@@ -54,8 +57,46 @@
 
                 <div class="form-row">
                     <div class="form-group">
+                        <label for="sport2">Secondary Sport <span class="optional-tag">Optional</span></label>
+                        <select id="sport2" class="form-control">
+                            <option value="">None / No Secondary Sport</option>
+                            <option value="Baseball">Baseball</option>
+                            <option value="Girls Golf">Girls' Golf</option>
+                            <option value="Boys Lacrosse">Boys' Lacrosse</option>
+                            <option value="Girls Lacrosse">Girls' Lacrosse</option>
+                            <option value="Boys Rugby">Boys' Rugby</option>
+                            <option value="Girls Rugby">Girls' Rugby</option>
+                            <option value="Softball">Softball</option>
+                            <option value="Tennis">Tennis</option>
+                            <option value="Track & Field">Outdoor Track & Field</option>
+                            <option value="Boys Volleyball">Boys' Volleyball</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sport3">Third Sport <span class="optional-tag">Optional</span></label>
+                        <select id="sport3" class="form-control">
+                            <option value="">None / No Third Sport</option>
+                            <option value="Baseball">Baseball</option>
+                            <option value="Girls Golf">Girls' Golf</option>
+                            <option value="Boys Lacrosse">Boys' Lacrosse</option>
+                            <option value="Girls Lacrosse">Girls' Lacrosse</option>
+                            <option value="Boys Rugby">Boys' Rugby</option>
+                            <option value="Girls Rugby">Girls' Rugby</option>
+                            <option value="Softball">Softball</option>
+                            <option value="Tennis">Tennis</option>
+                            <option value="Track & Field">Outdoor Track & Field</option>
+                            <option value="Boys Volleyball">Boys' Volleyball</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
                         <label for="age">Age</label>
-                        <input type="number" id="age" class="form-control" min="12" max="25" placeholder="e.g. 16" required>
+                        <input type="number" id="age" class="form-control" min="12" max="25" placeholder="e.g. 16"
+                            required>
                     </div>
                     <div class="form-group">
                         <label for="position">Position <span class="optional-tag">Optional</span></label>
@@ -91,8 +132,10 @@
                         <input type="text" id="heightWeight" class="form-control" placeholder="e.g. 5'10, 160 lbs">
                     </div>
                     <div class="form-group">
-                        <label for="mobilityLimitation">Mobility Limitations <span class="optional-tag">Optional</span></label>
-                        <input type="text" id="mobilityLimitation" class="form-control" placeholder="e.g. Tight hamstrings">
+                        <label for="mobilityLimitation">Mobility Limitations <span
+                                class="optional-tag">Optional</span></label>
+                        <input type="text" id="mobilityLimitation" class="form-control"
+                            placeholder="e.g. Tight hamstrings">
                     </div>
                 </div>
 
