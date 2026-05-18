@@ -421,8 +421,12 @@ if (profileBtn) {
         const user = JSON.parse(localStorage.getItem("currentUser"));
         if (user && user.profile) {
             const sportSelect = document.getElementById("profileSport");
+            const sport2Select = document.getElementById("profileSport2");
+            const sport3Select = document.getElementById("profileSport3");
             const gradeSelect = document.getElementById("profileGrade");
             if (sportSelect) sportSelect.value = user.profile.sport || "";
+            if (sport2Select) sport2Select.value = user.profile.sport2 || "";
+            if (sport3Select) sport3Select.value = user.profile.sport3 || "";
             if (gradeSelect) gradeSelect.value = user.profile.grade || "";
         }
         if (profileModal) profileModal.classList.remove("hidden");
@@ -439,19 +443,31 @@ if (profileForm) {
     profileForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const sport = document.getElementById("profileSport").value;
+        const sport2 = document.getElementById("profileSport2") ? document.getElementById("profileSport2").value : "";
+        const sport3 = document.getElementById("profileSport3") ? document.getElementById("profileSport3").value : "";
         const grade = document.getElementById("profileGrade").value;
 
         try {
-            await api.post("/profile", { profile: { sport, grade } });
             const user = JSON.parse(localStorage.getItem("currentUser"));
-            user.profile = { ...user.profile, sport, grade };
+            const updatedProfile = { 
+                ...user.profile, 
+                sport, 
+                sport2, 
+                sport3, 
+                grade 
+            };
+            
+            await api.post("/profile", { profile: updatedProfile });
+            user.profile = updatedProfile;
             localStorage.setItem("currentUser", JSON.stringify(user));
             
             showToast("Profile updated successfully!");
             if (profileModal) profileModal.classList.add("hidden");
             
-            // Refresh dashboard
-            loadDashboardData();
+            // Cleanly reload the page to refresh all dashboard states and recommendations
+            setTimeout(() => {
+                window.location.reload();
+            }, 800);
         } catch (err) {
             console.error("Profile update failed:", err);
             showToast("Failed to update profile", "error");
