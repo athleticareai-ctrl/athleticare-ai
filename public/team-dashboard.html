@@ -37,9 +37,69 @@
         <section class="dashboard-header">
             <div class="header-content">
                 <h1>Team Readiness Dashboard</h1>
-                <p>Monitor athlete recovery and identify injury risk</p>
+                <div class="header-sub">
+                    <p>Monitor athlete recovery and identify injury risk</p>
+                    <div class="team-selector-wrapper">
+                        <select id="teamSportFilter" class="team-select">
+                            <option value="all">All Spring Sports</option>
+                            <option value="Baseball">Baseball</option>
+                            <option value="Girls Golf">Girls' Golf</option>
+                            <option value="Boys Lacrosse">Boys' Lacrosse</option>
+                            <option value="Girls Lacrosse">Girls' Lacrosse</option>
+                            <option value="Boys Rugby">Boys' Rugby</option>
+                            <option value="Girls Rugby">Girls' Rugby</option>
+                            <option value="Softball">Softball</option>
+                            <option value="Tennis">Tennis</option>
+                            <option value="Track & Field">Outdoor Track & Field</option>
+                            <option value="Boys Volleyball">Boys' Volleyball</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-            <div class="date-display" id="currentDate"></div>
+            <div class="header-actions">
+                <div class="date-display" id="currentDate"></div>
+                <button class="export-btn" id="exportReportBtn">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Export Team Report
+                </button>
+            </div>
+        </section>
+        <!-- ================= EXECUTIVE SUMMARY ================= -->
+        <section class="executive-summary">
+            <div class="summary-bar">
+                <div class="summary-item">
+                    <span class="summary-label">Team Availability</span>
+                    <div class="summary-value-group">
+                        <span id="availabilityPct" class="summary-value">--%</span>
+                        <span class="summary-trend positive">↑ 2.4%</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">High-Risk Flags</span>
+                    <div class="summary-value-group">
+                        <span id="highRiskFlags" class="summary-value">--</span>
+                        <span class="summary-status urgent">Action Required</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Compliance Rate</span>
+                    <div class="summary-value-group">
+                        <span id="complianceRate" class="summary-value">--%</span>
+                        <span class="summary-sub">Last 7 Days</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Current Phase</span>
+                    <div class="summary-value-group">
+                        <span class="summary-value" id="currentSeasonPhase">In-Season</span>
+                        <span class="summary-sub">Heavy Load Week</span>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- ================= SUMMARY STATS ================= -->
@@ -47,7 +107,8 @@
             <div class="stat-card">
                 <div class="stat-icon good">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <path d="M22 4L12 14.01l-3-3" />
                     </svg>
                 </div>
                 <div class="stat-content">
@@ -58,7 +119,8 @@
             <div class="stat-card">
                 <div class="stat-icon moderate">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 8v4l3 3" />
                     </svg>
                 </div>
                 <div class="stat-content">
@@ -69,7 +131,8 @@
             <div class="stat-card">
                 <div class="stat-icon poor">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 8v4M12 16h.01" />
                     </svg>
                 </div>
                 <div class="stat-content">
@@ -80,7 +143,10 @@
             <div class="stat-card">
                 <div class="stat-icon warning">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
                     </svg>
                 </div>
                 <div class="stat-content">
@@ -94,7 +160,10 @@
         <div id="attentionAlert" class="attention-alert hidden">
             <div class="alert-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    <path
+                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
                 </svg>
             </div>
             <div class="alert-content">
@@ -111,8 +180,8 @@
                     <div class="table-actions">
                         <button id="refreshBtn" class="icon-btn" title="Refresh">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M23 4v6h-6M1 20v-6h6"/>
-                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                                <path d="M23 4v6h-6M1 20v-6h6" />
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
                             </svg>
                         </button>
                     </div>
@@ -123,6 +192,7 @@
                         <thead>
                             <tr>
                                 <th>Athlete</th>
+                                <th>Sport</th>
                                 <th>Score</th>
                                 <th>Status</th>
                                 <th>Trend</th>
@@ -140,10 +210,10 @@
                 <div id="emptyState" class="empty-state hidden">
                     <div class="empty-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                            <circle cx="9" cy="7" r="4"/>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                         </svg>
                     </div>
                     <p>No athlete data available</p>
@@ -184,6 +254,17 @@
 
                         <section class="profile-section">
                             <div class="section-header">
+                                <h3>Reported Pain Areas</h3>
+                                <span class="timeframe">Current Areas of Concern</span>
+                            </div>
+                            <div id="painHeatmap" class="pain-list-container">
+                                <!-- List of areas injected by JS -->
+                                <p class="empty-msg">No pain reported</p>
+                            </div>
+                        </section>
+
+                        <section class="profile-section">
+                            <div class="section-header">
                                 <h3>Statistics & Insights</h3>
                             </div>
                             <div class="stats-grid">
@@ -198,6 +279,10 @@
                                 <div class="mini-stat">
                                     <span class="label">Low Score Freq</span>
                                     <span id="lowScoreFreq" class="value">--</span>
+                                </div>
+                                <div class="mini-stat">
+                                    <span class="label">ACWR (Workload)</span>
+                                    <span id="acwrValue" class="value">--</span>
                                 </div>
                                 <div class="mini-stat">
                                     <span class="label">Primary Concern</span>
@@ -244,19 +329,20 @@
 
                         <section class="profile-section">
                             <div class="section-header">
+                                <h3>Trainer Notes</h3>
+                            </div>
+                            <textarea id="trainerNotes"
+                                placeholder="Add observations, injury updates, or progress notes..."></textarea>
+                            <button id="saveNotesBtn" class="save-notes-btn">Save Notes</button>
+                        </section>
+
+                        <section class="profile-section">
+                            <div class="section-header">
                                 <h3>Recommendations</h3>
                             </div>
                             <div id="modalRecommendations" class="recommendations-list-mini">
                                 <!-- Recommendations injected by JS -->
                             </div>
-                        </section>
-
-                        <section class="profile-section">
-                            <div class="section-header">
-                                <h3>Trainer Notes</h3>
-                            </div>
-                            <textarea id="trainerNotes" placeholder="Add observations, injury updates, or progress notes..."></textarea>
-                            <button id="saveNotesBtn" class="save-notes-btn">Save Notes</button>
                         </section>
                     </div>
                 </div>
