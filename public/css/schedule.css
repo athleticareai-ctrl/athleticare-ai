@@ -261,9 +261,19 @@ body {
     letter-spacing: 0.02em;
 }
 
+.form-group-row {
+    display: flex;
+    gap: 16px;
+}
+
+.form-group-row .form-group {
+    flex: 1;
+}
+
 /* Inputs */
 input[type="text"],
 input[type="time"],
+input[type="date"],
 select,
 textarea {
     width: 100%;
@@ -275,6 +285,26 @@ textarea {
     font-size: 0.95rem;
     font-family: inherit;
     transition: all var(--transition-fast);
+}
+
+/* Date & Time Inputs Dark Mode & Custom Icons */
+input[type="date"],
+input[type="time"] {
+    color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    /* Inverts the black icon and shifts it to match the AthletiCare brand green (#00d26a) */
+    filter: invert(61%) sepia(85%) saturate(2250%) hue-rotate(112deg) brightness(101%) contrast(101%);
+    opacity: 0.8;
+    transition: opacity var(--transition-fast);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
 }
 
 input::placeholder,
