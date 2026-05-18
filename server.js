@@ -17,12 +17,38 @@ const JWT_SECRET = process.env.JWT_SECRET || "athleticare-secret-key";
 
 // ================= DATABASE SETUP =================
 const { Pool } = pg;
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes("supabase.co")
-        ? { rejectUnauthorized: false }
-        : false
-});
+
+// Determine if we are connecting to a Supabase host
+const isSupabase = (process.env.DATABASE_URL && process.env.DATABASE_URL.includes("supabase")) ||
+                   (process.env.PGHOST && process.env.PGHOST.includes("supabase"));
+
+let pool;
+
+if (process.env.DATABASE_URL) {
+    // Clean any accidental enclosing quotes from Vercel env copy-paste
+    const cleanUrl = process.env.DATABASE_URL.trim().replace(/^["']|["']$/g, "");
+    
+    try {
+        pool = new Pool({
+            connectionString: cleanUrl,
+            ssl: isSupabase ? { rejectUnauthorized: false } : false
+        });
+    } catch (urlErr) {
+        console.error("Failed to parse DATABASE_URL connection string:", urlErr.message);
+    }
+}
+
+// Fallback to individual variables (highly recommended to bypass URL parsing bugs)
+if (!pool) {
+    pool = new Pool({
+        host: process.env.PGHOST ? process.env.PGHOST.trim().replace(/^["']|["']$/g, "") : undefined,
+        user: process.env.PGUSER ? process.env.PGUSER.trim().replace(/^["']|["']$/g, "") : undefined,
+        password: process.env.PGPASSWORD, // Kept exactly as is to preserve all special characters
+        database: process.env.PGDATABASE ? process.env.PGDATABASE.trim().replace(/^["']|["']$/g, "") : undefined,
+        port: process.env.PGPORT ? parseInt(process.env.PGPORT) : 5432,
+        ssl: isSupabase ? { rejectUnauthorized: false } : false
+    });
+}
 
 // Test database connection
 const testDbConnection = async () => {
