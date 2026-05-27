@@ -307,6 +307,27 @@ app.post("/chat", authenticateToken, async (req, res) => {
     }
 });
 
+// Keep Alive Route (to prevent database pausing)
+app.get("/api/keep-alive", async (req, res) => {
+    // Check if CRON_SECRET is configured, and if so, verify the header
+    const cronSecret = process.env.CRON_SECRET;
+    if (cronSecret && req.headers.authorization !== `Bearer ${cronSecret}`) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    try {
+        const result = await pool.query("SELECT true as active");
+        res.json({ 
+            success: true, 
+            timestamp: new Date().toISOString(), 
+            active: result.rows[0]?.active || false 
+        });
+    } catch (err) {
+        console.error("Keep alive query failed:", err.message);
+        res.status(500).json({ error: "Keep alive query failed", message: err.message });
+    }
+});
+
 // Catch-all
 app.all("/api/*", (req, res) => res.status(404).json({ error: "Route not found" }));
 app.use(express.static("public"));
