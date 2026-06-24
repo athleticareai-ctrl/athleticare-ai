@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>AthletiCare AI | Privacy Policy Consent</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Please review and agree to the AthletiCare AI Privacy Policy to get started tracking your recovery and readiness." />
+
+    <link rel="stylesheet" href="css/login.css" />
+    <!-- Additional page-specific styles for scrollable terms and checkboxes -->
+    <style>
+        .privacy-card {
+            max-width: 650px !important;
+        }
+        .privacy-scroll {
+            max-height: 350px;
+            overflow-y: auto;
+            background: rgba(2, 6, 23, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: left;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+        /* Custom Scrollbar for premium feel */
+        .privacy-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .privacy-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .privacy-scroll::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        .privacy-scroll::-webkit-scrollbar-thumb:hover {
+            background: var(--green-accent);
+        }
+        .privacy-scroll h2 {
+            font-size: 1.1rem;
+            color: var(--green-accent);
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.3rem;
+        }
+        .privacy-scroll p {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        .privacy-scroll ul {
+            padding-left: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        .privacy-scroll li {
+            margin-bottom: 0.5rem;
+        }
+        .privacy-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+        }
+        .privacy-table th, .privacy-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .privacy-table th {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--green-accent);
+        }
+        .consent-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .consent-row input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--green-accent);
+        }
+        .consent-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            user-select: none;
+        }
+        .consent-label span {
+            color: var(--green-accent);
+        }
+        .submit-btn:disabled {
+            background: var(--border-color);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+        .logout-link-container {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .logout-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s ease;
+        }
+        .logout-link:hover {
+            color: #ef4444;
+            text-decoration: underline;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-logo">AthletiCare AI</div>
+        <div class="nav-links">
+            <a href="#" id="navLogoutBtn" class="nav-cta">Log Out</a>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <div class="auth-card privacy-card">
+            <header class="auth-header">
+                <h1>Privacy Policy</h1>
+                <p>Please review and agree to our policy to continue setup</p>
+            </header>
+
+            <div class="privacy-scroll" id="policyViewport">
+                <h2>AthletiCare AI Privacy Policy</h2>
+                <p><strong>Last updated: June 24, 2026</strong></p>
+
+                <h2>Who we are</h2>
+                <p>AthletiCare AI ("AthletiCare," "we," "us") is a recovery and readiness tracking tool built for student-athletes. This policy explains what information we collect, how it's used, who we share it with, and what control you have over it.</p>
+                <p>AthletiCare AI is not a medical device and does not provide medical diagnosis or treatment. It is a self-tracking and educational tool. Always consult a licensed athletic trainer, physician, or other qualified provider for actual injury diagnosis or treatment decisions.</p>
+
+                <h2>Information we collect</h2>
+                <ul>
+                    <li><strong>Account information:</strong> name, email, school/team affiliation, primary sport, and grade/year, provided when you create an account.</li>
+                    <li><strong>Daily check-in data:</strong> pain level and location, sleep quality, muscle soreness, fatigue, stress level, training load, and recovery confidence — entered voluntarily during your daily check-in.</li>
+                    <li><strong>Chatbot conversations:</strong> the injury descriptions and messages you type into the AthletiCare chatbot.</li>
+                    <li><strong>Schedule data:</strong> exercises, durations, and dates you add to your recovery schedule.</li>
+                </ul>
+                <p>We do not knowingly collect more health detail than is needed to generate a readiness score and recommendations.</p>
+
+                <h2>How we use your information</h2>
+                <ul>
+                    <li>To calculate your daily readiness score and Acute:Chronic Workload Ratio (ACWR), using your check-in history</li>
+                    <li>To generate personalized exercise and recovery recommendations</li>
+                    <li>To respond to your chatbot messages</li>
+                    <li>To show your trends and history on your dashboard</li>
+                    <li>To let a coach or athletic trainer you're connected with see flagged risk indicators (e.g., elevated ACWR, a multi-day soreness trend) — not your raw daily entries, pain locations, or chat messages, unless you choose to share those directly</li>
+                </ul>
+
+                <h2>Who we share information with</h2>
+                <p>We use a small number of service providers to run AthletiCare. We do not sell your data, and we do not share it with advertisers.</p>
+
+                <table class="privacy-table">
+                    <thead>
+                        <tr>
+                            <th>Provider</th>
+                            <th>What it receives</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Supabase</strong></td>
+                            <td>Account info, check-in data, schedule data</td>
+                            <td>Database hosting and storage, behind access controls (Row-Level Security) that restrict each account to its own data</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Groq</strong></td>
+                            <td>The text of your chatbot messages</td>
+                            <td>Generates the chatbot's AI responses</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vercel</strong></td>
+                            <td>Standard web request data (no health data stored here)</td>
+                            <td>Hosts the website and application code</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>Groq and Vercel are independent companies with their own privacy practices; we encourage you to review their policies. We do not send your name, email, or other identifying account information to Groq along with your chat messages — only the message content needed to generate a response.</p>
+
+                <h2>How we protect your data</h2>
+                <ul>
+                    <li>All data in transit is encrypted (HTTPS).</li>
+                    <li>Passwords are hashed (never stored in plain text) using bcrypt.</li>
+                    <li>Database access is restricted by Row-Level Security, so one user's account cannot read another's check-in data.</li>
+                    <li>API keys and database credentials are stored as server-side environment variables, never exposed in client-side code.</li>
+                    <li>Coach/athletic trainer accounts only have access to aggregated risk flags for athletes they're connected to, not full check-in detail, by default.</li>
+                </ul>
+                <p>No system is perfectly secure, and we can't guarantee absolute security, but we design with the principle of giving each role access to only what it needs.</p>
+
+                <h2>Data retention and deletion</h2>
+                <p>We retain your data for as long as your account is active so your readiness trends remain useful. You can request deletion of your account and associated data at any time by contacting <a href="mailto:athleticareai@gmail.com">athleticareai@gmail.com</a>. We will delete your data within 30 days of a verified request, except where retention is required by law.</p>
+
+                <h2>Minors</h2>
+                <p>AthletiCare AI is intended for use by student-athletes, including users under 18. We do not knowingly collect personal information from children under 13 without appropriate consent. If you are a parent or guardian and believe your child under 13 has created an account without your consent, contact us at <a href="mailto:athleticareai@gmail.com">athleticareai@gmail.com</a> and we will delete the account.</p>
+
+                <h2>Your choices</h2>
+                <ul>
+                    <li>You can review and edit your profile information in Settings.</li>
+                    <li>You can choose what to disclose in chatbot conversations and check-in notes.</li>
+                    <li>You can request a copy of your data or its deletion by contacting <a href="mailto:athleticareai@gmail.com">athleticareai@gmail.com</a>.</li>
+                </ul>
+
+                <h2>Changes to this policy</h2>
+                <p>We may update this policy as AthletiCare AI evolves. We'll update the "Last updated" date above when we do, and post material changes prominently in the app.</p>
+
+                <h2>Contact</h2>
+                <p>Questions about this policy or your data: <a href="mailto:athleticareai@gmail.com">athleticareai@gmail.com</a></p>
+            </div>
+
+            <form id="privacyForm">
+                <div class="consent-row">
+                    <input type="checkbox" id="consentCheckbox" required />
+                    <label for="consentCheckbox" class="consent-label">
+                        I have read and agree to the <span>AthletiCare AI Privacy Policy</span>, and understand that AthletiCare is not a medical device.
+                    </label>
+                </div>
+
+                <button type="submit" id="agreeBtn" class="submit-btn" disabled>I Agree & Continue</button>
+            </form>
+
+            <div class="logout-link-container">
+                <a href="#" id="logoutLink" class="logout-link">Log out of this account</a>
+            </div>
+
+            <p id="error-message"></p>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/privacy.js"></script>
+</body>
+
+</html>
