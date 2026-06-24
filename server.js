@@ -55,6 +55,9 @@ const testDbConnection = async () => {
     try {
         await pool.query("SELECT NOW()");
         console.log("PostgreSQL Database connected successfully ✅");
+        // Auto-migration: ensure privacyAccepted column exists
+        await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS "privacyAccepted" INTEGER DEFAULT 0');
+        console.log("Database migrations applied successfully ✅");
     } catch (err) {
         console.error("Failed to initialize database connection ❌", err.message);
     }
@@ -129,11 +132,11 @@ app.post("/api/auth/signup", async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         await pool.query(
-            'INSERT INTO users (email, password, firstname, lastname, "accessCode", "onboardingComplete") VALUES ($1, $2, $3, $4, $5, $6)',
-            [email, hashedPassword, firstname, lastname, accessCode || null, onboardingComplete]
+            'INSERT INTO users (email, password, firstname, lastname, "accessCode", "onboardingComplete", "privacyAccepted") VALUES ($1, $2, $3, $4, $5, $6, $7)',
+            [email, hashedPassword, firstname, lastname, accessCode || null, onboardingComplete, 0]
         );
         const token = jwt.sign({ email, role: 'athlete' }, JWT_SECRET, { expiresIn: '24h' });
-        const user = { email, firstname, lastname, role: 'athlete', onboardingComplete, profile: null };
+        const user = { email, firstname, lastname, role: 'athlete', onboardingComplete, privacyAccepted: 0, profile: null };
         res.status(201).json({ success: true, token, user });
     } catch (err) {
         if (err.message && err.message.includes("unique")) return res.status(400).json({ error: "Email already exists" });
@@ -187,6 +190,16 @@ app.post("/api/profile", authenticateToken, async (req, res) => {
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: "Profile update failed" });
+    }
+});
+
+// PRIVACY: Accept
+app.post("/api/privacy/accept", authenticateToken, async (req, res) => {
+    try {
+        await pool.query('UPDATE users SET "privacyAccepted" = 1 WHERE email = $1', [req.user.email]);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to accept privacy policy" });
     }
 });
 
@@ -333,4 +346,5 @@ app.all("/api/*", (req, res) => res.status(404).json({ error: "Route not found" 
 app.use(express.static("public"));
 app.get("*", (req, res) => res.sendFile(path.join(path.resolve(), "public", "index.html")));
 
+export { pool };
 export default app;
