@@ -19,48 +19,60 @@ const JWT_SECRET = process.env.JWT_SECRET || "athleticare-secret-key";
 // ================= DATABASE SETUP =================
 const { Pool } = pg;
 
-// Determine if we are connecting to a Supabase host
-const isSupabase = (process.env.DATABASE_URL && process.env.DATABASE_URL.includes("supabase")) ||
-                   (process.env.PGHOST && process.env.PGHOST.includes("supabase"));
+const cleanEnv = (val) => (val ? String(val).trim().replace(/^["']|["']$/g, "") : undefined);
+
+const dbHost = cleanEnv(process.env.PGHOST);
+const dbUser = cleanEnv(process.env.PGUSER);
+const dbPassword = process.env.PGPASSWORD ? String(process.env.PGPASSWORD).trim().replace(/^["']|["']$/g, "") : undefined;
+const dbDatabase = cleanEnv(process.env.PGDATABASE);
+const dbPort = process.env.PGPORT ? parseInt(cleanEnv(process.env.PGPORT)) : 5432;
+const dbUrl = cleanEnv(process.env.DATABASE_URL);
+
+const isCloudOrSupabase = Boolean(
+    dbUrl ||
+    dbHost ||
+    process.env.VERCEL ||
+    (dbHost && dbHost.includes("supabase")) ||
+    (dbUrl && dbUrl.includes("supabase"))
+);
 
 let pool;
 
-if (process.env.DATABASE_URL) {
-    // Clean any accidental enclosing quotes from Vercel env copy-paste
-    const cleanUrl = process.env.DATABASE_URL.trim().replace(/^["']|["']$/g, "");
-    
+if (dbUrl) {
     try {
         pool = new Pool({
-            connectionString: cleanUrl,
-            ssl: isSupabase ? { rejectUnauthorized: false } : false
+            connectionString: dbUrl,
+            ssl: isCloudOrSupabase ? { rejectUnauthorized: false } : false
         });
     } catch (urlErr) {
         console.error("Failed to parse DATABASE_URL connection string:", urlErr.message);
     }
 }
 
-// Fallback to individual variables (highly recommended to bypass URL parsing bugs)
-if (!pool) {
+if (!pool && (dbHost || dbUser)) {
     pool = new Pool({
-        host: process.env.PGHOST ? process.env.PGHOST.trim().replace(/^["']|["']$/g, "") : undefined,
-        user: process.env.PGUSER ? process.env.PGUSER.trim().replace(/^["']|["']$/g, "") : undefined,
-        password: process.env.PGPASSWORD, // Kept exactly as is to preserve all special characters
-        database: process.env.PGDATABASE ? process.env.PGDATABASE.trim().replace(/^["']|["']$/g, "") : undefined,
-        port: process.env.PGPORT ? parseInt(process.env.PGPORT) : 5432,
-        ssl: isSupabase ? { rejectUnauthorized: false } : false
+        host: dbHost,
+        user: dbUser,
+        password: dbPassword,
+        database: dbDatabase,
+        port: dbPort,
+        ssl: isCloudOrSupabase ? { rejectUnauthorized: false } : false
     });
 }
 
 // Test database connection
 const testDbConnection = async () => {
+    if (!pool) {
+        console.warn("PostgreSQL Pool not initialized: missing DATABASE_URL or PGHOST/PGUSER environment variables. Using in-memory store.");
+        return;
+    }
     try {
         await pool.query("SELECT NOW()");
         console.log("PostgreSQL Database connected successfully ✅");
-        // Auto-migration: ensure privacyAccepted column exists
         await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS "privacyAccepted" INTEGER DEFAULT 0');
         console.log("Database migrations applied successfully ✅");
     } catch (err) {
-        console.error("Failed to initialize database connection ❌", err.message);
+        console.error("Failed to initialize database connection ❌:", err.message || err);
     }
 };
 
@@ -430,42 +442,50 @@ app.get("/api/chats", authenticateToken, async (req, res) => {
 
 // AI Chat Handler Function
 const handleChatRequest = async (req, res) => {
-    const { messages } = req.body;
-    const systemMessage = { role: "system", content: "You are AthletiCare AI, a sports medicine guidance assistant. Provide helpful, empathetic, and medically sound advice for sports injuries while reminding athletes to consult certified professionals." };
-    const chatMessages = [systemMessage, ...(messages || [])];
+    try {
+        const { messages } = req.body;
+        const systemMessage = { role: "system", content: "You are AthletiCare AI, a sports medicine guidance assistant. Provide helpful, empathetic, and medically sound advice for sports injuries while reminding athletes to consult certified professionals." };
+        const chatMessages = [systemMessage, ...(messages || [])];
 
-    // 1. Try OpenAI if API Key exists
-    if (process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.startsWith("dummy")) {
-        try {
-            const completion = await openai.chat.completions.create({
-                model: "gpt-4o-mini",
-                messages: chatMessages
-            });
-            const reply = completion.choices[0]?.message?.content;
-            if (reply) return res.json({ reply });
-        } catch (openaiErr) {
-            console.error("OpenAI Chat Error:", openaiErr.message || openaiErr);
+        // 1. Try OpenAI if API Key exists
+        if (process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.startsWith("dummy")) {
+            try {
+                const completion = await openai.chat.completions.create({
+                    model: "gpt-4o-mini",
+                    messages: chatMessages
+                });
+                const reply = completion.choices[0]?.message?.content;
+                if (reply) return res.json({ reply });
+            } catch (openaiErr) {
+                console.error("OpenAI Chat Error:", openaiErr.message || openaiErr);
+            }
         }
-    }
 
-    // 2. Try Groq if API Key exists
-    if (process.env.GROQ_API_KEY && !process.env.GROQ_API_KEY.startsWith("dummy")) {
-        try {
-            const completion = await groq.chat.completions.create({
-                model: "llama-3.1-8b-instant",
-                messages: chatMessages
-            });
-            const reply = completion.choices[0]?.message?.content;
-            if (reply) return res.json({ reply });
-        } catch (groqErr) {
-            console.error("Groq Chat Error:", groqErr.message || groqErr);
+        // 2. Try Groq if API Key exists
+        if (process.env.GROQ_API_KEY && !process.env.GROQ_API_KEY.startsWith("dummy")) {
+            try {
+                const completion = await groq.chat.completions.create({
+                    model: "llama-3.3-70b-versatile",
+                    messages: chatMessages
+                });
+                const reply = completion.choices[0]?.message?.content;
+                if (reply) return res.json({ reply });
+            } catch (groqErr) {
+                console.error("Groq Chat Error:", groqErr.message || groqErr);
+            }
         }
-    }
 
-    // 3. Fallback Response (Guarantees site never crashes with 500 error!)
-    return res.json({
-        reply: "Hello! I'm AthletiCare AI. For acute injury management, remember RICE: Rest, Ice (15-20 minutes), Compression, and Elevation. Please consult your certified athletic trainer or medical professional for evaluation."
-    });
+        // 3. Fallback Response
+        return res.json({
+            reply: "Hello! I'm AthletiCare AI. For acute injury management, remember RICE: Rest, Ice (15-20 minutes), Compression, and Elevation. Please consult your certified athletic trainer or medical professional for evaluation."
+        });
+    } catch (fatalErr) {
+        // Top-level safety net — guarantees no 500 errors ever reach the client
+        console.error("Fatal Chat Handler Error:", fatalErr.message || fatalErr);
+        return res.json({
+            reply: "I'm AthletiCare AI. I'm experiencing a temporary issue, but here's general guidance: For any acute injury, apply RICE (Rest, Ice, Compression, Elevation) and consult your athletic trainer."
+        });
+    }
 };
 
 app.post("/chat", authenticateToken, handleChatRequest);
