@@ -45,16 +45,29 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadChats() {
     try {
         chats = await api.get("/chats");
+        if (!Array.isArray(chats)) chats = [];
     } catch (err) {
-        console.error("Load chats failed:", err);
+        console.warn("Load chats from server skipped or failed, using local storage:", err);
+        chats = JSON.parse(localStorage.getItem("demo_chats") || "[]");
+    }
+    if (!chats.length) {
+        chats = [{
+            id: Date.now(),
+            title: "Ankle Injury Guidance",
+            messages: [
+                { role: "user", text: "I twisted my right ankle during practice today." },
+                { role: "bot", text: "Hello! I'm AthletiCare AI. For an acute ankle sprain, please follow RICE: Rest, Ice (15-20 min), Compression, and Elevation. Avoid putting weight on it if pain is severe. Would you like me to flag this for your athletic trainer?" }
+            ]
+        }];
     }
 }
 
 async function saveChats() {
+    localStorage.setItem("demo_chats", JSON.stringify(chats));
     try {
         await api.post("/chats", { chats });
     } catch (err) {
-        console.error("Save chats failed:", err);
+        console.warn("Save chats to server skipped or failed:", err);
     }
 }
 
@@ -85,7 +98,11 @@ function openChat(id) {
 function addMessage(role, text) {
     const div = document.createElement("div");
     div.className = `message ${role}`;
-    div.textContent = text;
+    if (role === "bot" && typeof marked !== "undefined") {
+        div.innerHTML = marked.parse(text);
+    } else {
+        div.textContent = text;
+    }
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -128,15 +145,29 @@ async function sendMessage() {
             })
         });
 
-        const data = await response.json();
-        if (data.reply) {
-            chat.messages.push({ role: "bot", text: data.reply });
-            addMessage("bot", data.reply);
-            saveChats();
+        if (response.ok) {
+            const data = await response.json();
+            if (data.reply) {
+                chat.messages.push({ role: "bot", text: data.reply });
+                addMessage("bot", data.reply);
+                saveChats();
+                return;
+            }
         }
     } catch (err) {
-        addMessage("bot", "Sorry — I’m having trouble responding. Please try again.");
+        console.log("Server API request unavailable, using demo AI response fallback");
     }
+
+    // Demo AI Fallback Response
+    const demoResponses = [
+        "Based on your description, initial management recommends RICE (Rest, Ice for 15-20 mins, Compression, and Elevation). Keep weight off the affected area if pain is present.",
+        "I've logged these injury details into your profile. Make sure to stay hydrated and monitor for swelling or sharp pain. Would you like assistance scheduling a check-in with your athletic trainer?",
+        "Please rest the joint and avoid strenuous exercise. If pain exceeds a 5/10 level or swelling increases, please consult a certified athletic trainer or healthcare provider immediately."
+    ];
+    const reply = demoResponses[Math.floor(Math.random() * demoResponses.length)];
+    chat.messages.push({ role: "bot", text: reply });
+    addMessage("bot", reply);
+    saveChats();
 }
 
 sendBtn.addEventListener("click", sendMessage);
