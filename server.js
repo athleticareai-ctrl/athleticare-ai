@@ -465,7 +465,7 @@ const handleChatRequest = async (req, res) => {
         if (process.env.GROQ_API_KEY && !process.env.GROQ_API_KEY.startsWith("dummy")) {
             try {
                 const completion = await groq.chat.completions.create({
-                    model: "llama-3.3-70b-versatile",
+                    model: "openai/gpt-oss-20b",
                     messages: chatMessages
                 });
                 const reply = completion.choices[0]?.message?.content;
