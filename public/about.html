@@ -1,347 +1,291 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AthletiCare AI | Intelligent Sports Injury Guidance</title>
+    <title>AthletiCare AI</title>
+    <meta name="description"
+        content="A quick daily check-in for high school athletes, with a team view for athletic trainers." />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="css/about.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <div class="nav-logo">AthletiCare AI</div>
-        <div class="nav-links">
-            <a href="about.html">About</a>
-            <a href="login1.html">Athlete Login</a>
-            <a href="trainer-login.html">Trainer Login</a>
-            <a href="signup.html" class="nav-cta">Sign Up</a>
-        </div>
-    </nav>
-
-    <!-- HERO SECTION -->
-    <header class="hero">
-        <div class="hero-bg-animation"></div>
-        <div class="hero-particles" id="particles"></div>
-        <div class="hero-inner">
-            <h1 class="animate-text"><span class="word">Injury</span> <span class="word">Guidance,</span> <span class="word">Reimagined</span></h1>
-            <p class="animate-text delay-1">
-                Intelligent, responsible sports injury education designed
-                to support athletes — not replace medical professionals.
-            </p>
-            <a href="/signup.html" class="hero-btn animate-text delay-2">Create Free Account</a>
-        </div>
-        <div class="scroll-indicator">
-            <div class="mouse">
-                <div class="wheel"></div>
+    <header class="site-header">
+        <nav class="main-nav">
+            <a href="about.html" class="logo">Athleti<span>Care</span></a>
+            <div class="nav-links">
+                <a href="login1.html">Athlete Login</a>
+                <a href="trainer-login.html">Trainer Login</a>
+                <a href="signup.html" class="nav-signup">Sign Up</a>
             </div>
-            <span>Scroll to explore</span>
-        </div>
+        </nav>
     </header>
 
-    <!-- MAIN CONTENT -->
-    <main class="content-wrapper">
+    <main>
 
-        <!-- WHAT IS -->
-        <section class="feature-section" data-animate>
-            <div class="container">
-                <div class="section-header">
-                    <span class="eyebrow">Introduction</span>
-                    <h2>What Is AthletiCare AI?</h2>
+        <!-- hero -->
+        <section class="dark hero" id="checkin">
+            <!-- background clip, muted and looping -->
+            <video class="hero-video" autoplay muted loop playsinline poster="video/hero-poster.jpg" aria-hidden="true">
+                <source src="hero.mp4" type="video/mp4" />
+            </video>
+            <div class="hero-shade"></div>
+
+            <button class="video-toggle" type="button" aria-label="Pause background video">Pause</button>
+
+            <div class="wrap two-col hero-content">
+                <div>
+                    <h1>Know when something doesn't feel right, before it turns into an injury</h1>
+                    <p class="lead">
+                        Athletes answer a few questions before practice. AthletiCare turns
+                        that into a readiness score and lets their athletic trainer know
+                        when someone needs a closer look.
+                    </p>
+                    <a href="signup.html" class="btn">Create an account</a>
                 </div>
-                <div class="feature-card tilt-card">
-                    <div class="card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+
+                <!-- line drawing of a phone showing a check-in -->
+                <svg class="art" viewBox="0 0 360 380" role="img"
+                    aria-label="Drawing of a phone showing a daily check-in with a yellow flag">
+                    <rect x="90" y="10" width="180" height="350" rx="22" class="stroke phone-body" />
+                    <line x1="155" y1="28" x2="205" y2="28" class="stroke" />
+                    <text x="112" y="60" class="art-label">Today's check-in</text>
+                    <g class="stroke-soft">
+                        <line x1="112" y1="98" x2="248" y2="98" />
+                        <line x1="112" y1="134" x2="248" y2="134" />
+                        <line x1="112" y1="170" x2="248" y2="170" />
+                        <line x1="112" y1="206" x2="248" y2="206" />
+                    </g>
+                    <text x="112" y="90" class="art-text">Pain</text><text x="248" y="90" class="art-text"
+                        text-anchor="end">3/10</text>
+                    <text x="112" y="126" class="art-text">Sleep</text><text x="248" y="126" class="art-text"
+                        text-anchor="end">6 hrs</text>
+                    <text x="112" y="162" class="art-text">Soreness</text><text x="248" y="162" class="art-text"
+                        text-anchor="end">Some</text>
+                    <text x="112" y="198" class="art-text">Fatigue</text><text x="248" y="198" class="art-text"
+                        text-anchor="end">High</text>
+                    <rect x="108" y="230" width="144" height="70" rx="8" class="flag-box" />
+                    <circle cx="126" cy="252" r="6" class="flag-dot" />
+                    <text x="140" y="257" class="art-text">Take it easier</text>
+                    <text x="122" y="282" class="art-small">Tell your trainer today</text>
+                    <rect x="108" y="316" width="144" height="26" rx="4" class="stroke" />
+                    <!-- small chart floating to the left -->
+                    <rect x="8" y="120" width="64" height="64" rx="8" class="stroke phone-body" />
+                    <polyline points="18,170 32,158 44,164 60,134" class="stroke-accent" />
+                    <line x1="72" y1="152" x2="90" y2="152" class="stroke-soft dashed" />
+                    <!-- flag icon floating to the right -->
+                    <rect x="288" y="230" width="64" height="64" rx="8" class="stroke phone-body" />
+                    <line x1="308" y1="280" x2="308" y2="244" class="stroke-accent" />
+                    <path d="M308 245 L334 252 L308 260" class="stroke-accent" />
+                    <line x1="270" y1="262" x2="288" y2="262" class="stroke-soft dashed" />
+                </svg>
+            </div>
+        </section>
+
+        <!-- numbers -->
+        <section class="dark stats-section tone-forest">
+            <div class="wrap stats">
+                <div class="stat">
+                    <span class="stat-num">6</span>
+                    <span class="stat-label">things athletes log each day, from pain to sleep to stress</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-num">3</span>
+                    <span class="stat-label">status levels: good to go, take it easier, see your trainer</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-num">1</span>
+                    <span class="stat-label">dashboard with the whole team on it</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="dark tone-teal" id="ask">
+            <div class="wrap two-col">
+                <div>
+                    <h2>Ask about pain in your own words</h2>
+                    <p>
+                        Describe what hurts and when. The AI explains what might be going on,
+                        what usually helps, and when it's time to get it checked out by
+                        someone in person.
+                    </p>
+                    <a href="login1.html" class="btn">Start a chat</a>
+                </div>
+
+                <svg class="art" viewBox="0 0 360 260" role="img" aria-label="Drawing of a chat conversation">
+                    <rect x="20" y="20" width="250" height="56" rx="10" class="stroke" />
+                    <text x="38" y="53" class="art-text">My knee hurts going downstairs</text>
+                    <rect x="110" y="100" width="230" height="96" rx="10" class="stroke-accent-box" />
+                    <text class="art-text" font-size="12">
+                        <tspan x="128" y="124">That sounds like it could be</tspan>
+                        <tspan x="128" y="142">irritation around the kneecap.</tspan>
+                        <tspan x="128" y="160">Ease off squats and jumps, and</tspan>
+                        <tspan x="128" y="178">check with your trainer soon.</tspan>
+                    </text>
+                    <rect x="20" y="218" width="320" height="30" rx="6" class="stroke" />
+                    <circle cx="322" cy="233" r="7" class="flag-dot green" />
+                </svg>
+            </div>
+        </section>
+
+        <section class="dark tone-slate" id="schedule">
+            <div class="wrap two-col reverse">
+                <div>
+                    <h2>Turn a recovery plan into a schedule</h2>
+                    <p>
+                        Pick the exercises you were given, set how long and for how many
+                        days, and export the whole thing to your phone's calendar so you
+                        actually remember to do them.
+                    </p>
+                    <a href="login1.html" class="btn">Build a schedule</a>
+                </div>
+
+                <svg class="art" viewBox="0 0 360 260" role="img" aria-label="Drawing of a weekly calendar">
+                    <rect x="30" y="20" width="300" height="220" rx="10" class="stroke" />
+                    <line x1="30" y1="62" x2="330" y2="62" class="stroke" />
+                    <g class="stroke-soft">
+                        <line x1="90" y1="62" x2="90" y2="240" />
+                        <line x1="150" y1="62" x2="150" y2="240" />
+                        <line x1="210" y1="62" x2="210" y2="240" />
+                        <line x1="270" y1="62" x2="270" y2="240" />
+                        <line x1="30" y1="120" x2="330" y2="120" />
+                        <line x1="30" y1="180" x2="330" y2="180" />
+                    </g>
+                    <rect x="40" y="74" width="40" height="34" rx="4" class="block" />
+                    <rect x="160" y="74" width="40" height="34" rx="4" class="block" />
+                    <rect x="280" y="74" width="40" height="34" rx="4" class="block" />
+                    <rect x="100" y="132" width="40" height="34" rx="4" class="block" />
+                    <rect x="220" y="132" width="40" height="34" rx="4" class="block" />
+                </svg>
+            </div>
+        </section>
+
+        <!-- light section -->
+        <section class="light" id="team">
+            <div class="wrap">
+                <h2>Built for everyone on the team</h2>
+                <p class="section-intro">Each person sees what's useful to them, and nothing else.</p>
+
+                <div class="cards">
+                    <div class="card">
+                        <svg viewBox="0 0 32 32" class="icon" aria-hidden="true">
+                            <circle cx="16" cy="8" r="4" />
+                            <path d="M8 28 L12 16 L20 16 L24 28 M12 20 L6 22 M20 20 L26 17" />
                         </svg>
-                    </div>
-                    <div class="card-content">
-                        <p>
-                            AthletiCare AI is an advanced sports medicine assistant built to help
-                            athletes understand symptoms, recovery concepts, and injury prevention.
-                            It delivers clear, evidence-based guidance in language athletes can trust.
-                        </p>
-                    </div>
-                    <div class="card-glow"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SAFETY -->
-        <section class="feature-section alt" data-animate>
-            <div class="container">
-                <div class="section-header">
-                    <span class="eyebrow">Our Commitment</span>
-                    <h2>Built for Safety & Responsibility</h2>
-                </div>
-                <div class="feature-grid">
-                    <div class="feature-card tilt-card">
-                        <div class="card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                            </svg>
-                        </div>
-                        <div class="card-content">
-                            <p>
-                                AthletiCare AI does <strong>not</strong> diagnose injuries or replace
-                                licensed medical professionals. Instead, it promotes informed decision-making
-                                and encourages evaluation by athletic trainers and physicians when appropriate.
-                            </p>
-                        </div>
-                        <div class="card-glow"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- AUDIENCE -->
-        <section class="feature-section" data-animate>
-            <div class="container">
-                <div class="section-header">
-                    <span class="eyebrow">Who We Serve</span>
-                    <h2>Who This Platform Serves</h2>
-                </div>
-                <div class="audience-grid">
-                    <div class="audience-card tilt-card" data-tilt>
-                        <div class="card-number">01</div>
                         <h3>Athletes</h3>
-                        <p>Student and collegiate athletes</p>
+                        <p>Check in each day, see your readiness, and get answers about what hurts.</p>
                     </div>
-                    <div class="audience-card tilt-card" data-tilt>
-                        <div class="card-number">02</div>
-                        <h3>Active Individuals</h3>
-                        <p>Recreational and competitive athletes</p>
-                    </div>
-                    <div class="audience-card tilt-card" data-tilt>
-                        <div class="card-number">03</div>
-                        <h3>Professionals</h3>
-                        <p>Coaches and athletic trainers</p>
-                    </div>
-                    <div class="audience-card tilt-card" data-tilt>
-                        <div class="card-number">04</div>
-                        <h3>Everyone</h3>
-                        <p>Active individuals focused on injury prevention</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- WHY US -->
-        <section class="feature-section alt" data-animate>
-            <div class="container">
-                <div class="section-header">
-                    <span class="eyebrow">Our Mission</span>
-                    <h2>Why AthletiCare AI?</h2>
-                </div>
-                <div class="why-content">
-                    <div class="why-text">
-                        <p>
-                            Sports injuries are complex. AthletiCare AI bridges the gap between
-                            uncertainty and professional care by delivering clear guidance,
-                            appropriate caution, and medically responsible education.
-                        </p>
-                    </div>
-                    <div class="why-stats">
-                        <div class="stat-item">
-                            <span class="stat-value">24/7</span>
-                            <span class="stat-label">Always Available</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-value">100%</span>
-                            <span class="stat-label">Evidence-Based</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-value">0</span>
-                            <span class="stat-label">Medical Jargon</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- RECOVERY DASHBOARD -->
-        <section class="feature-section" data-animate>
-            <div class="container">
-                <div class="section-header">
-                    <span class="eyebrow">New Feature</span>
-                    <h2>Recovery Readiness Dashboard</h2>
-                </div>
-                <div class="feature-card tilt-card">
-                    <div class="card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    <div class="card">
+                        <svg viewBox="0 0 32 32" class="icon" aria-hidden="true">
+                            <rect x="6" y="5" width="20" height="24" rx="2" />
+                            <path d="M12 5 V3 H20 V5 M11 13 H21 M11 18 H21 M11 23 H17" />
                         </svg>
+                        <h3>Athletic trainers</h3>
+                        <p>See the whole roster at once, with anyone who reported a problem moved to the top.</p>
                     </div>
-                    <div class="card-content">
-                        <p>
-                            AthletiCare AI now includes an <strong>advanced readiness tracking system</strong> that
-                            monitors athlete recovery through comprehensive metrics including pain levels, mobility, 
-                            sleep quality, physical fatigue, stress, and previous training load.
-                            Athletes complete a quick daily check-in and receive a dynamically calculated readiness score
-                            along with personalized, realistic recovery recommendations.
-                        </p>
-                        <p style="margin-top: 16px;">
-                            <strong>For Trainers:</strong> The unified Team Dashboard provides real-time visibility into
-                            athlete readiness across the entire roster. It automatically flags athletes with high pain, 
-                            extreme fatigue, or declining recovery trends, helping identify injury risk before it happens
-                            and enabling data-informed decisions about training load.
-                        </p>
-                    </div>
-                    <div class="card-glow"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SCHEDULING SYSTEM -->
-        <section class="feature-section alt" data-animate>
-            <div class="container">
-                <div class="section-header">
-                    <span class="eyebrow">Smart Planning</span>
-                    <h2>Intelligent Schedule Builder</h2>
-                </div>
-                <div class="feature-card tilt-card">
-                    <div class="card-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                            <line x1="16" y1="2" x2="16" y2="6" />
-                            <line x1="8" y1="2" x2="8" y2="6" />
-                            <line x1="3" y1="10" x2="21" y2="10" />
+                    <div class="card">
+                        <svg viewBox="0 0 32 32" class="icon" aria-hidden="true">
+                            <circle cx="16" cy="16" r="11" />
+                            <path d="M16 9 V16 L21 19" />
                         </svg>
+                        <h3>Coaches</h3>
+                        <p>Plan practice around who's ready to go hard and who should hold back today.</p>
                     </div>
-                    <div class="card-content">
-                        <p>
-                            Turn AI-recommended exercises and personalized recovery protocols into an actionable calendar. 
-                            The <strong>Smart Scheduling System</strong> allows athletes to structure their recovery routines 
-                            with specific durations, start dates, and end dates.
-                        </p>
-                        <p style="margin-top: 16px;">
-                            Schedules are fully exportable to standard calendar applications (.ics format), ensuring that 
-                            athletes stay compliant with their recovery programs outside the facility.
-                        </p>
+                    <div class="card">
+                        <svg viewBox="0 0 32 32" class="icon" aria-hidden="true">
+                            <path d="M4 14 L16 6 L28 14 M7 13 V27 H25 V13 M13 27 V20 H19 V27" />
+                        </svg>
+                        <h3>Schools</h3>
+                        <p>Get an access code that links your athletes to your trainers in one place.</p>
                     </div>
-                    <div class="card-glow"></div>
                 </div>
             </div>
         </section>
 
-        <!-- FINAL CTA -->
-        <section class="cta-section" data-animate>
-            <div class="cta-bg-animation"></div>
-            <div class="container">
-                <h2>Start Smarter Injury Guidance Today</h2>
-                <a href="/signup.html" class="cta-btn magnetic-btn">Get Started</a>
+        <section class="light shaded">
+            <div class="wrap two-col top">
+                <div>
+                    <h2>What it won't do</h2>
+                    <p>
+                        AthletiCare doesn't diagnose injuries and isn't a replacement for an
+                        athletic trainer or doctor. Its job is to help you notice when something
+                        is off and get you to the right person sooner.
+                    </p>
+                </div>
+                <div class="warning">
+                    <p><strong>Skip the app and see someone right away if you have:</strong></p>
+                    <ul>
+                        <li>A hit to the head, or a headache, dizziness, or confusion after one</li>
+                        <li>A joint that looks out of place or can't hold weight</li>
+                        <li>Numbness, tingling, or pain that keeps getting worse</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="dark cta">
+            <div class="wrap">
+                <h2>Try it with your team</h2>
+                <a href="signup.html" class="btn">Create an account</a>
             </div>
         </section>
 
     </main>
 
-    <!-- FOOTER -->
-    <footer>
-        <p>© 2026 AthletiCare AI. Educational use only. Not a medical device.</p>
+    <footer class="site-footer">
+        <div class="wrap footer-cols">
+            <div>
+                <a href="about.html" class="logo">Athleti<span>Care</span></a>
+                <p>For education only. Not a medical device.</p>
+            </div>
+            <div>
+                <h4>Athletes</h4>
+                <a href="signup.html">Sign up</a>
+                <a href="login1.html">Log in</a>
+            </div>
+            <div>
+                <h4>Trainers</h4>
+                <a href="trainer-login.html">Trainer login</a>
+                <a href="#team">How the dashboard works</a>
+            </div>
+        </div>
+        <div class="wrap footer-bottom">
+            <p>&copy; 2026 AthletiCare AI</p>
+        </div>
     </footer>
 
     <script>
-        // Intersection Observer for scroll animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+        // pause/play for the hero video. starts paused if the user prefers less motion
+        const video = document.querySelector('.hero-video');
+        const toggle = document.querySelector('.video-toggle');
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('[data-animate]').forEach(section => {
-            observer.observe(section);
-        });
-
-        // Hero text stagger animation
-        document.querySelectorAll('.animate-text').forEach((el, index) => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(30px)';
-            setTimeout(() => {
-                el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-                el.style.opacity = '1';
-                el.style.transform = 'translateY(0)';
-            }, 200 + (index * 200));
-        });
-
-        // Word-by-word animation for hero title
-        document.querySelectorAll('.hero h1 .word').forEach((word, i) => {
-            word.style.opacity = '0';
-            word.style.transform = 'translateY(20px)';
-            word.style.display = 'inline-block';
-            setTimeout(() => {
-                word.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                word.style.opacity = '1';
-                word.style.transform = 'translateY(0)';
-            }, 300 + (i * 150));
-        });
-
-        // 3D Tilt effect for cards
-        document.querySelectorAll('.tilt-card').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                const rotateX = (y - centerY) / 10;
-                const rotateY = (centerX - x) / 10;
-
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-                card.querySelector('.card-glow')?.style.setProperty('--glow-x', `${x}px`);
-                card.querySelector('.card-glow')?.style.setProperty('--glow-y', `${y}px`);
-            });
-
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
-            });
-        });
-
-        // Magnetic button effect
-        document.querySelectorAll('.magnetic-btn').forEach(btn => {
-            btn.addEventListener('mousemove', (e) => {
-                const rect = btn.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
-                btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
-            });
-            btn.addEventListener('mouseleave', () => {
-                btn.style.transform = 'translate(0, 0)';
-            });
-        });
-
-        // Particle effect for hero
-        const particlesContainer = document.getElementById('particles');
-        const particleCount = 20;
-
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.top = Math.random() * 100 + '%';
-            particle.style.animationDelay = Math.random() * 5 + 's';
-            particle.style.animationDuration = (5 + Math.random() * 10) + 's';
-            particlesContainer.appendChild(particle);
+        function setPlaying(playing) {
+            if (playing) {
+                video.play();
+                toggle.textContent = 'Pause';
+                toggle.setAttribute('aria-label', 'Pause background video');
+            } else {
+                video.pause();
+                toggle.textContent = 'Play';
+                toggle.setAttribute('aria-label', 'Play background video');
+            }
         }
 
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            setPlaying(false);
+        }
 
+        toggle.addEventListener('click', () => setPlaying(video.paused));
+    </script>
+
+</body>
+
+</html>
