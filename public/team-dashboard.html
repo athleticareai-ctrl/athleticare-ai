@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/team-dashboard.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="favicon.png" />
 </head>
@@ -18,7 +18,7 @@
 
     <!-- ================= TOP NAV ================= -->
     <nav class="navbar">
-        <div class="nav-logo">AthletiCare<span>AI</span></div>
+        <a href="about.html" class="nav-logo">Athleti<span>Care</span></a>
         <div class="nav-links">
             <a href="team-dashboard.html" class="active">Team Dashboard</a>
             <a href="#" id="logoutBtn">Logout</a>
@@ -36,9 +36,9 @@
         <!-- ================= HEADER ================= -->
         <section class="dashboard-header">
             <div class="header-content">
-                <h1>Team Readiness Dashboard</h1>
+                <h1>Team readiness</h1>
                 <div class="header-sub">
-                    <p>Monitor athlete recovery and identify injury risk</p>
+                    <p>See who checked in today and who needs a closer look before practice.</p>
                     <div class="team-selector-wrapper">
                         <select id="teamSportFilter" class="team-select">
                             <option value="all">All Spring Sports</option>
@@ -75,7 +75,7 @@
                     <span class="summary-label">Team Availability</span>
                     <div class="summary-value-group">
                         <span id="availabilityPct" class="summary-value">--%</span>
-                        <span class="summary-trend positive">↑ 2.4%</span>
+                        <span class="summary-sub">cleared today</span>
                     </div>
                 </div>
                 <div class="summary-item">
@@ -176,7 +176,7 @@
         <section class="table-section">
             <div class="table-card">
                 <div class="table-header">
-                    <h2>Athlete Readiness</h2>
+                    <h2>Athletes</h2>
                     <div class="table-actions">
                         <button id="refreshBtn" class="icon-btn" title="Refresh">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
