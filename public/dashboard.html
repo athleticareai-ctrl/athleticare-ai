@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/dashboard.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="favicon.png" />
 </head>
@@ -18,7 +18,7 @@
 
     <!-- ================= TOP NAV ================= -->
     <nav class="navbar">
-        <div class="nav-logo">AthletiCare<span>AI</span></div>
+        <a href="about.html" class="nav-logo">Athleti<span>Care</span></a>
         <div class="nav-links">
             <a href="index.html">Chatbot</a>
             <a href="dashboard.html" class="active">Dashboard</a>
@@ -38,8 +38,8 @@
         <!-- ================= HEADER ================= -->
         <section class="dashboard-header">
             <div class="header-content">
-                <h1>Daily Readiness</h1>
-                <p>Track your recovery. Optimize your performance.</p>
+                <h1>Daily readiness</h1>
+                <p>Check in before practice and see how ready your body is today.</p>
             </div>
             <div class="date-display" id="currentDate"></div>
         </section>
@@ -133,7 +133,7 @@
             <div class="form-card">
                 <div class="form-header">
                     <h2>Daily Check-In</h2>
-                    <p>Takes 30 seconds. Helps prevent injuries.</p>
+                    <p>Takes about 30 seconds. Answer based on how you feel right now.</p>
                 </div>
 
                 <form id="checkInForm" class="checkin-form">
@@ -352,7 +352,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                         </svg>
-                        Your Personalized Recommendations
+                        What to do today
                     </h2>
                 </div>
                 <div id="recommendationsList" class="recommendations-list"></div>
