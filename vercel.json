@@ -65,5 +65,13 @@
       "src": "/(.*)",
       "dest": "/public/index.html"
     }
+        {
+      "src": "/video/(.*)",
+      "dest": "/public/video/$1"
+    },
+    {
+      "src": "/favicon.png",
+      "dest": "/public/favicon.png"
+    },
   ]
 }
