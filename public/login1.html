@@ -9,24 +9,17 @@
     <link rel="stylesheet" href="css/login.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geo:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
-    <!-- NAVBAR -->
     <nav class="navbar">
-        <div class="nav-logo">AthletiCare AI</div>
+        <a href="about.html" class="nav-logo">Athleti<span>Care</span></a>
         <div class="nav-links">
-            <a href="about.html">About</a>
             <a href="login1.html" class="active">Athlete Login</a>
             <a href="trainer-login.html">Trainer Login</a>
             <a href="signup.html" class="nav-cta">Sign Up</a>
-        </div>
-        <div class="nav-toggle">
-            <span></span>
-            <span></span>
-            <span></span>
         </div>
     </nav>
 
@@ -34,23 +27,30 @@
         <div class="auth-card">
 
             <header class="auth-header">
-                <h1>AthletiCare AI</h1>
-                <p>Secure sports injury guidance</p>
+                <h1>Athlete login</h1>
+                <p>Check in, ask about pain, and see your recovery plan.</p>
             </header>
 
             <form id="login-form">
-                <input type="email" id="loginEmail" placeholder="Email Address" required />
-                <input type="password" id="loginPassword" placeholder="Password" required />
-                <input type="text" id="access-code-input" placeholder="Access Code (optional for non-school affiliated users)" />
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="you@example.com" required />
+
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" required />
+
+                <label for="access-code-input">School access code <span class="optional">(optional)</span></label>
+                <input type="text" id="access-code-input" />
+                <small class="hint">Only needed if your school gave you one.</small>
+
                 <button type="submit">Log In</button>
             </form>
 
+            <p id="loginMessage"></p>
+
             <p class="auth-footer">
                 Don’t have an account?
-                <a href="signup.html">Sign Up</a>
+                <a href="signup.html">Sign up</a>
             </p>
-
-            <p id="loginMessage"></p>
 
         </div>
     </div>
